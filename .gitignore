@@ -11,5 +11,7 @@
 ###< symfony/framework-bundle ###
 
 /composer.lock
+/.idea/
 /.docker/composer/tmp/
 /.docker/mysql/data/
+/.docker/php/logs/
