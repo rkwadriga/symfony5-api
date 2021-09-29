@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use \DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ApiResource(
     collectionOperations: [
@@ -45,7 +46,7 @@ class CheeseListing
      * @ORM\Column(type="string", length=255)
      * @Groups({"cheese_listing:read", "cheese_listing:write"})
      */
-    private string $title;
+    private ?string $title;
 
     /**
      * @ORM\Column(type="text")
@@ -71,9 +72,10 @@ class CheeseListing
      */
     private bool $isPublished = false;
 
-    public function __construct()
+    public function __construct(string $title = null)
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->title = $title;
     }
 
     public function getId(): int
@@ -81,16 +83,9 @@ class CheeseListing
         return $this->id;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
     }
 
     public function getDescription(): string
@@ -109,6 +104,7 @@ class CheeseListing
      * The description of the cheese as raw text
      *
      * @Groups({"cheese_listing:write"})
+     * @SerializedName("description")
      */
     public function setTextDescription(string $description): self
     {
