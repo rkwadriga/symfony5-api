@@ -5,6 +5,6 @@ RUN pecl install xdebug \
     && a2enmod rewrite && service apache2 restart \
     && docker-php-ext-install mysqli pdo pdo_mysql && docker-php-ext-enable pdo_mysql \
     && apt-get -y update \
-    && apt-get install -y libicu-dev\
+    && apt-get install -y libicu-dev \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl
