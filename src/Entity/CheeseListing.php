@@ -1,8 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\CheeseListingRepository;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,26 +15,32 @@ use \DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
-#[ApiResource(
-    collectionOperations: [
-        "GET" => ["path" => "/I❤cheeses"],
-        "POST"
-    ],
-    itemOperations: ["GET", "PUT"],
-    shortName: "cheeses",
-    denormalizationContext: [
-        "groups" => [
-            "cheese_listing:write"
+#[
+    ApiResource(
+        collectionOperations: [
+            "GET" => ["path" => "/cheeses/list.{_format}"], // /cheeses/list.json, /cheeses/list.jsonld
+            "POST"
         ],
-        "swagger_definition_name" => "Write"
-    ],
-    normalizationContext: [
-        "groups" => [
-            "cheese_listing:read"
+        itemOperations: ["GET", "PUT"],
+        shortName: "cheeses",
+        denormalizationContext: [
+            "groups" => [
+                "cheese_listing:write"
+            ],
+            "swagger_definition_name" => "Write"
         ],
-        "swagger_definition_name" => "Read"
-    ]
-)]
+        normalizationContext: [
+            "groups" => [
+                "cheese_listing:read"
+            ],
+            "swagger_definition_name" => "Read"
+        ]
+    ),
+    ApiFilter(BooleanFilter::class, properties: ["isPublished"]),
+    ApiFilter(SearchFilter::class, properties: ["title" => "partial", "description" => "partial"]),
+    ApiFilter(RangeFilter::class, properties: ["price"]),
+    ApiFilter(PropertyFilter::class) // Make possible send response like "GET /cheeses-list?properties[]=title&properties[]=price"
+]
 /**
  * @ORM\Entity (repositoryClass=CheeseListingRepository::class)
  */
@@ -111,6 +122,17 @@ class CheeseListing
         $this->description = nl2br($description);
 
         return $this;
+    }
+
+    /**
+     * @Groups({"cheese_listing:read"})
+     */
+    public function getShortDescription(): ?string
+    {
+        if (strlen($this->getDescription()) < 40) {
+            return $this->getDescription();
+        }
+        return mb_substr($this->getDescription(), 0, 40) . '...';
     }
 
     public function getPrice(): int
