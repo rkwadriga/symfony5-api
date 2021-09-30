@@ -18,11 +18,14 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 #[
     ApiResource(
         collectionOperations: [
-            "GET" => ["path" => "/cheeses/list.{_format}"], // /cheeses/list.json, /cheeses/list.jsonld
-            "POST"
+            "get" => ["path" => "/cheeses/list.{_format}"], // /cheeses/list.json, /cheeses/list.jsonld
+            "post"
         ],
-        itemOperations: ["GET", "PUT"],
+        itemOperations: ["get", "put"],
         shortName: "cheeses",
+        attributes: [
+            "pagination_items_per_page" => 10
+        ],
         denormalizationContext: [
             "groups" => [
                 "cheese_listing:write"
