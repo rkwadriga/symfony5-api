@@ -24,7 +24,14 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
         itemOperations: ["get", "put"],
         shortName: "cheeses",
         attributes: [
-            "pagination_items_per_page" => 10
+            "pagination_items_per_page" => 10,
+            "formats" => [
+                "json",
+                "jsonld",
+                "html",
+                "jsonhal",
+                "csv" => ["text/csv"]
+            ]
         ],
         denormalizationContext: [
             "groups" => [
