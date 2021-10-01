@@ -113,6 +113,7 @@ class CheeseListing
     private bool $isPublished = false;
 
     /**
+     * @Assert\Valid()
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"cheese_listing:read", "cheese_listing:write"})
