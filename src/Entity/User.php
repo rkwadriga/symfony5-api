@@ -70,7 +70,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @Assert\Valid()
-     * @ORM\OneToMany(targetEntity=CheeseListing::class, mappedBy="owner", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=CheeseListing::class, mappedBy="owner", cascade={"persist"}, orphanRemoval=true)
      * @Groups({"user:read", "user:write"})
      */
     private $cheeseListings;
@@ -196,12 +196,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeCheeseListing(CheeseListing $cheeseListing): self
     {
-        if ($this->cheeseListings->removeElement($cheeseListing)) {
+        $this->cheeseListings->removeElement($cheeseListing);
+        /*if ($this->cheeseListings->removeElement($cheeseListing)) {
             // set the owning side to null (unless already changed)
             if ($cheeseListing->getOwner() === $this) {
                 $cheeseListing->setOwner(null);
             }
-        }
+        }*/
 
         return $this;
     }
