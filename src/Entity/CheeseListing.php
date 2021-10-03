@@ -58,7 +58,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         ]
     ),
     ApiFilter(BooleanFilter::class, properties: ["isPublished"]),
-    ApiFilter(SearchFilter::class, properties: ["title" => "partial", "description" => "partial"]),
+    ApiFilter(SearchFilter::class, properties: [
+        "title" => "partial",
+        "description" => "partial",
+        "owner" => "exact", // Needed for filtering the collection by owner (add to the uri something like "?owner=/api/users/<user ID>")
+        "owner.username" => "partial" // Needed for filtering the collection by owner.username (add to the uri something like "?owner.username=<part of the owner's username>")
+    ]),
     ApiFilter(RangeFilter::class, properties: ["price"]),
     ApiFilter(PropertyFilter::class) // Make possible send response like "GET /cheeses-list?properties[]=title&properties[]=price"
 ]

@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -27,7 +29,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ]
     ),
     UniqueEntity(fields: ["username"]),
-    UniqueEntity(fields: ["email"])
+    UniqueEntity(fields: ["email"]),
+    ApiFilter(PropertyFilter::class) // Needed for get from API only certain attributes (just add to request uri something like "?properties[]=username&properties[cheeseListings][]=title")
 ]
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
