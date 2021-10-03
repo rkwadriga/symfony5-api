@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -75,6 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Assert\Valid()
      * @ORM\OneToMany(targetEntity=CheeseListing::class, mappedBy="owner", cascade={"persist"}, orphanRemoval=true)
      * @Groups({"user:read", "user:write"})
+     * @ApiSubresource() // Needed to make possible to get user's cheeses collection by uri "/api/users/<user ID>/cheese_listings"
      */
     private $cheeseListings;
 
