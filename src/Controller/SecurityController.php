@@ -6,10 +6,10 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Api\IriConverterInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authorization\Voter\AuthenticatedVoter;
 
 class SecurityController extends AbstractController
@@ -18,7 +18,7 @@ class SecurityController extends AbstractController
     /**
      * @Route("/login", name="app_login", methods={"POST"})
      */
-    public function login(): JsonResponse
+    public function login(IriConverterInterface $iriConverter): Response
     {
         if (!$this->isGranted(AuthenticatedVoter::IS_AUTHENTICATED_FULLY)) {
             return $this->json([
@@ -26,8 +26,8 @@ class SecurityController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json([
-            'user' => $this->getUser() ? $this->getUser() : null
+        return new Response(null, Response::HTTP_NO_CONTENT, [
+            'Location' => $iriConverter->getIriFromItem($this->getUser())
         ]);
     }
 }
