@@ -26,7 +26,10 @@ security:
                 check_path: app_login
                 username_path: email
                 password_path: password
- #               failure_handler:
+               # failure_handler:
+
+            logout:
+                path: app_logout
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
