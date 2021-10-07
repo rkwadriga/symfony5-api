@@ -20,7 +20,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     ApiResource(
         collectionOperations: [
             "get" => ["path" => "/cheeses/list.{_format}"], // /cheeses/list.json, /cheeses/list.jsonld
-            "post"
+            "post" => [
+                "access_control" => "is_granted('ROLE_USER')"
+            ]
         ],
         itemOperations: [
             "get" => [
@@ -31,7 +33,12 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ]
                 ]
             ],
-            "put"
+            "put" => [
+                "access_control" => "is_granted('ROLE_USER')"
+            ],
+            "delete" => [
+                "access_control" => "is_granted('ROLE_ADMIN')"
+            ]
         ],
         shortName: "cheeses",
         attributes: [
