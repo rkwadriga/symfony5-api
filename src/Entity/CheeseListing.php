@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         collectionOperations: [
             "get" => ["path" => "/cheeses/list.{_format}"], // /cheeses/list.json, /cheeses/list.jsonld
             "post" => [
-                "access_control" => "is_granted('ROLE_USER')"
+                "security" => "is_granted('ROLE_USER')"
             ]
         ],
         itemOperations: [
@@ -34,10 +34,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ]
             ],
             "put" => [
-                "access_control" => "is_granted('ROLE_USER')"
+                "security" => "is_granted('ROLE_USER')"
             ],
             "delete" => [
-                "access_control" => "is_granted('ROLE_ADMIN')"
+                "security" => "is_granted('ROLE_ADMIN')"
             ]
         ],
         shortName: "cheeses",
