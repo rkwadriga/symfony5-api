@@ -6,7 +6,7 @@
 
 namespace App\Test;
 
-use App\ApiPlatform\Test\ApiTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Entity\User;
 
-class CustomApiTestCase extends ApiTestCase
+class CustomApiTestCase extends WebTestCase
 {
     protected ?KernelBrowser $client = null;
 
