@@ -4,7 +4,7 @@
  * Author Dmitry Kushneriov
  */
 
-namespace App\Tests\Functional;
+namespace Functional;
 
 use App\Test\CustomApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
