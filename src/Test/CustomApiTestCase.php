@@ -29,7 +29,7 @@ class CustomApiTestCase extends ApiTestCase
             ->setUsername($name);
         $user->setPassword($encoder->getPasswordHasher($user)->hash($password));
 
-        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em = $this->getEntityManager();
         $em->persist($user);
         $em->flush();
 
@@ -51,5 +51,10 @@ class CustomApiTestCase extends ApiTestCase
         $this->login($client, $email, $password);
 
         return $user;
+    }
+
+    protected function getEntityManager(): EntityManagerInterface
+    {
+        return self::getContainer()->get(EntityManagerInterface::class);
     }
 }
