@@ -6,17 +6,24 @@
 
 namespace App\Test;
 
-use Symfony\Bundle\FrameworkBundle\KernelBrowser as Client;
 use App\ApiPlatform\Test\ApiTestCase;
-use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
+use Symfony\Component\DomCrawler\Crawler;
+use App\Entity\User;
 
 class CustomApiTestCase extends ApiTestCase
 {
+    protected ?KernelBrowser $client = null;
+
     protected function createUser(string $email, string $password, ?string $name = null): User
     {
+        // Init client
+        $this->getClient();
+
         if ($name === null) {
             $name = substr($email, 0, strpos($email, '@'));
         }
@@ -36,25 +43,57 @@ class CustomApiTestCase extends ApiTestCase
         return $user;
     }
 
-    protected function login(Client $client, string $email, string $password): void
+    protected function login(string $email, string $password): void
     {
-        $client->jsonRequest('POST', '/login', [
+        $this->post('/login', [
             'email' => $email,
             'password' => $password
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
 
-    protected function createUserAdnLogin(Client $client, string $email, string $password, ?string $name = null): User
+    protected function createUserAdnLogin(string $email, string $password, ?string $name = null): User
     {
         $user = $this->createUser($email, $password, $name);
-        $this->login($client, $email, $password);
+        $this->login($email, $password);
 
         return $user;
     }
 
+    protected function get(string $uri, array $params = [], array $headers = []): Crawler
+    {
+        return $this->request(Request::METHOD_GET, $uri, $params, $headers);
+    }
+
+    protected function post(string $uri, array $params = [], array $headers = []): Crawler
+    {
+        return $this->request(Request::METHOD_POST, $uri, $params, $headers);
+    }
+
+    protected function put(string $uri, array $params = [], array $headers = []): Crawler
+    {
+        return $this->request(Request::METHOD_PUT, $uri, $params, $headers);
+    }
+
+    protected function request(string $method, string $uri, array $params = [], array $headers = []): Crawler
+    {
+        return $this->getClient()->jsonRequest($method, $uri, $params, $headers);
+    }
+
+    protected function getClient(): KernelBrowser
+    {
+        if ($this->client === null) {
+            $this->client = self::createClient();
+        }
+
+        return $this->client;
+    }
+
     protected function getEntityManager(): EntityManagerInterface
     {
+        // Init client
+        $this->getClient();
+
         return self::getContainer()->get(EntityManagerInterface::class);
     }
 }

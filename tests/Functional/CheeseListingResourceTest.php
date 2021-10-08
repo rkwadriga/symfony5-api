@@ -17,26 +17,23 @@ class CheeseListingResourceTest extends CustomApiTestCase
 
     public function testCreateCheeseListing(): void
     {
-        $client = self::createClient();
-
         // 1. Check the "Unautorized" error
-        $client->jsonRequest('POST', '/api/cheeses');
+        $this->post('/api/cheeses');
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
 
         // 2. Create user and login
-        $this->createUserAdnLogin($client, 'user1@mail.com', 'xxxxxx');
+        $this->createUserAdnLogin('user1@mail.com', 'xxxxxx');
 
         // 3. Check the "Unprocessable entity" error (when the "not blank" validation for some fields is failed)
-        $client->jsonRequest('POST', '/api/cheeses');
+        $this->post('/api/cheeses');
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testUpdateCheeseListing()
     {
-        $client = self::createClient();
-
-        // 1. Create user and login
+        // 1. Create 2 users
         $user1 = $this->createUser('user1@mail.com', '11111');
+        $user2 = $this->createUser('user2@mail.com', '22222');
 
         // 2. Create a new cheese listing and set just created use as it's owner
         $cheeseListing = new CheeseListing('Block of chedder');
@@ -49,18 +46,25 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $em->persist($cheeseListing);
         $em->flush();
 
-        // 3. Update cheese listing with correct user
-        $this->login($client, 'user1@mail.com', '11111');
-        $client->jsonRequest('PUT', '/api/cheeses/' . $cheeseListing->getId(), [
+        // 3. Login the first user
+        $this->login('user1@mail.com', '11111');
+        // ... and update his cheese listing
+        $this->put('/api/cheeses/' . $cheeseListing->getId(), [
             'title' => 'Updated',
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        // 4. Create a second user, login it and try to update cheese listing from his account
-        $user2 = $this->createUser('user2@mail.com', '22222');
-        $this->login($client, 'user2@mail.com', '22222');
-        $client->jsonRequest('PUT', '/api/cheeses/' . $cheeseListing->getId(), [
+        // 4. Login the second user
+        $this->login('user2@mail.com', '22222');
+        // ... and try to update cheese listing from his account
+        $this->put('/api/cheeses/' . $cheeseListing->getId(), [
             'title' => 'Updated',
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+
+        // 5. The second user tries to make himself an owner of else's cheese listing
+        $this->put('/api/cheeses/' . $cheeseListing->getId(), [
+            'owner' => '/api/users/' . $user2->getId(),
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
