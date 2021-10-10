@@ -7,6 +7,7 @@
 namespace Functional;
 
 use App\Entity\CheeseListing;
+use App\Security\SecurityHelper;
 use App\Test\CustomApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +32,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
 
     public function testUpdateCheeseListing()
     {
-        // 1. Create 2 users
+        // 1. Create users
         $user1 = $this->createUser('user1@mail.com', '11111');
         $user2 = $this->createUser('user2@mail.com', '22222');
 
@@ -67,5 +68,12 @@ class CheeseListingResourceTest extends CustomApiTestCase
             'owner' => '/api/users/' . $user2->getId(),
         ]);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+
+        // 6. Create and login the admin user and chek is he can edit else's cheese listing
+        $this->createUserAdnLogin('admin@mail.com', '00000', null, SecurityHelper::ROLE_ADMIN);
+        $this->put('/api/cheeses/' . $cheeseListing->getId(), [
+            'title' => 'Updated by admin',
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 }

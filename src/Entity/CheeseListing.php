@@ -34,7 +34,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ]
             ],
             "put" => [
-                "security" => "is_granted('ROLE_USER') and object.getOwner() === user",
+                //"security" => "is_granted('ROLE_USER') and object.getOwner() === user",
+                "security" => "is_granted('EDIT', object)", // The same like previous string but logics is implemented in App\Security\Voter\CheeseListingVoter
                 "security_message" => "Only the owner can edit the cheese listing"
             ],
             "delete" => [

@@ -6,6 +6,7 @@
 
 namespace App\Test;
 
+use App\Security\SecurityHelper;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -15,11 +16,11 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Entity\User;
 
-class CustomApiTestCase extends WebTestCase
+abstract class CustomApiTestCase extends WebTestCase
 {
     protected ?KernelBrowser $client = null;
 
-    protected function createUser(string $email, string $password, ?string $name = null): User
+    protected function createUser(string $email, string $password, ?string $name = null, ?string $role = null): User
     {
         // Init client
         $this->getClient();
@@ -27,13 +28,16 @@ class CustomApiTestCase extends WebTestCase
         if ($name === null) {
             $name = substr($email, 0, strpos($email, '@'));
         }
+        $roles = $role !== null && in_array($role, SecurityHelper::ALLOWED_ROLES) ? [$role] : [];
 
         $encoder = self::getContainer()->get(PasswordHasherFactoryInterface::class);
 
         $user = new User();
         $user
             ->setEmail($email)
-            ->setUsername($name);
+            ->setUsername($name)
+            ->setRoles($roles)
+        ;
         $user->setPassword($encoder->getPasswordHasher($user)->hash($password));
 
         $em = $this->getEntityManager();
@@ -52,9 +56,9 @@ class CustomApiTestCase extends WebTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
 
-    protected function createUserAdnLogin(string $email, string $password, ?string $name = null): User
+    protected function createUserAdnLogin(string $email, string $password, ?string $name = null, ?string $role = null): User
     {
-        $user = $this->createUser($email, $password, $name);
+        $user = $this->createUser($email, $password, $name, $role);
         $this->login($email, $password);
 
         return $user;
