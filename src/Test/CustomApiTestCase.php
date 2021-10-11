@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Routing\RouterInterface;
 use App\Entity\User;
 
 abstract class CustomApiTestCase extends WebTestCase
@@ -51,7 +52,7 @@ abstract class CustomApiTestCase extends WebTestCase
 
     protected function login(string $email, string $password): void
     {
-        $this->post('/login', [
+        $this->request(Routes::URL_LOGIN, [
             'email' => $email,
             'password' => $password
         ]);
@@ -66,23 +67,35 @@ abstract class CustomApiTestCase extends WebTestCase
         return $user;
     }
 
-    protected function get(string $uri, array $params = [], array $headers = []): Crawler
+    protected function get(mixed $route, array $params = [], array $headers = []): Crawler
     {
-        return $this->request(Request::METHOD_GET, $uri, $params, $headers);
+        return $this->request($route, $params, $headers, Request::METHOD_GET);
     }
 
-    protected function post(string $uri, array $params = [], array $headers = []): Crawler
+    protected function post(mixed $route, array $params = [], array $headers = []): Crawler
     {
-        return $this->request(Request::METHOD_POST, $uri, $params, $headers);
+        return $this->request($route, $params, $headers, Request::METHOD_POST);
     }
 
-    protected function put(string $uri, array $params = [], array $headers = []): Crawler
+    protected function put(mixed $route, array $params = [], array $headers = []): Crawler
     {
-        return $this->request(Request::METHOD_PUT, $uri, $params, $headers);
+        return $this->request($route, $params, $headers, Request::METHOD_PUT);
     }
 
-    protected function request(string $method, string $uri, array $params = [], array $headers = []): Crawler
+    protected function request(mixed $route, array $params = [], array $headers = [], ?string $method = null): Crawler
     {
+        [$roteName, $parameters] = is_array($route) ? $route : [$route, []];
+        if (!is_array($parameters)) {
+            $parameters = ['id' => $parameters];
+        }
+
+        if ($method === null) {
+            $methods = $this->getRouter()->getRouteCollection()->get($roteName)->getMethods();
+            $method = array_shift($methods);
+        }
+
+        $uri = $this->getRouter()->generate($roteName, $parameters);
+
         return $this->getClient()->jsonRequest($method, $uri, $params, $headers);
     }
 
@@ -101,5 +114,13 @@ abstract class CustomApiTestCase extends WebTestCase
         $this->getClient();
 
         return self::getContainer()->get(EntityManagerInterface::class);
+    }
+
+    public function getRouter(): RouterInterface
+    {
+        // Init client
+        $this->getClient();
+
+        return self::getContainer()->get(RouterInterface::class);
     }
 }
