@@ -18,6 +18,8 @@ use App\Entity\User;
 
 abstract class CustomApiTestCase extends WebTestCase
 {
+    use ApiTestAssertionsTrait;
+
     protected ?KernelBrowser $client = null;
 
     protected function createUser(string $email, string $password, ?string $name = null, ?string $role = null): User
