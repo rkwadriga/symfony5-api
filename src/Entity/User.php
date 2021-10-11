@@ -73,6 +73,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"admin:write"})
      */
     private array $roles = [];
 
@@ -103,6 +104,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ApiSubresource() // Needed to make possible to get user's cheeses collection by uri "/api/users/<user ID>/cheese_listings"
      */
     private $cheeseListings;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     * @Groups({"admin:read", "user:write"}) // These groups are not presented in ApiResource normalization or denormalization contexts,
+     *                                       // ...they'll be dynamically added to the context in the App\Serializer\AdminGroupsContextBuilder
+     */
+    private $phoneNumber;
 
     public function __construct()
     {
@@ -244,6 +252,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $cheeseListing->setOwner(null);
             }
         }*/
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): self
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }

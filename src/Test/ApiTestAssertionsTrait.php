@@ -45,7 +45,6 @@ trait ApiTestAssertionsTrait
         $this->assertArraySubset($subset, $this->getResponseParams(), $checkForObjectIdentity, $message);
     }
 
-
     /**
      * Asserts that an array has a specified subset.
      *
