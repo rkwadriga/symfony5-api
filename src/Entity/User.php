@@ -107,8 +107,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
-     * @Groups({"admin:read", "user:write"}) // These groups are not presented in ApiResource normalization or denormalization contexts,
-     *                                       // ...they'll be dynamically added to the context in the App\Serializer\AdminGroupsContextBuilder
+     * @Groups({"admin:read", "owner:read", "user:write"}) // These groups are not presented in ApiResource normalization or denormalization contexts,
+     *                                       // ...they'll be dynamically added to the context in the App\Serializer\AdminGroupsContextBuilder.
+     *                                       // The "owner:read" group allows to se only your own phone number (look at App\Serializer\Normalizer\UserNormalizer class)
      */
     private $phoneNumber;
 

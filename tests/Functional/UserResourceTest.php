@@ -107,4 +107,25 @@ class UserResourceTest extends CustomApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['phoneNumber' => '(000) 111-222-333']);
     }
+
+    public function testGetUsersCollection()
+    {
+        // 3. Create a few users
+        for ($i = 1; $i <= 5; $i++) {
+            $user = $this->createUser("cheeseplease_{$i}@example.com", 'qwerty');
+            $user->setPhoneNumber("(000) {$i}{$i}{$i}-222-333");
+            $em = $this->getEntityManager();
+            $em->persist($user);
+            $em->flush();
+        }
+
+        // 2. Login the last of created users
+        $this->login($user->getEmail(), 'qwerty');
+
+        // 3. Get users list
+        $this->request(Routes::URL_GET_USERS);
+        $this->assertResponseIsSuccessful();
+        $params = $this->getResponseParams();
+        $this->assertCount(5, $params);
+    }
 }
