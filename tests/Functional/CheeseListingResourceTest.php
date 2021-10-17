@@ -148,4 +148,26 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['hydra:totalItems' => 2]);
     }
+
+    public function testGetCheeseListingItem(): void
+    {
+        // 1. Create user
+        $user = $this->createUser('needcheese@test.com', 'qwerty');
+
+        // 2. Create a cheese
+        $cheeseListing1 = new CheeseListing('cheese1');
+        $cheeseListing1
+            ->setOwner($user)
+            ->setPrice(1000)
+            ->setDescription('Cheese 1')
+            ->setIsPublished(false)
+        ;
+        $em = $this->getEntityManager();
+        $em->persist($cheeseListing1);
+        $em->flush();
+
+        // 3. Unpublished cheese should not be visible
+        $this->ldRequest([Routes::URL_GET_CHEESE_LISTING, $cheeseListing1->getId()]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
 }
