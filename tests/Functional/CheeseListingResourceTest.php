@@ -75,7 +75,9 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $cheeseListing
             ->setPrice(1000)
             ->setDescription('mmmm')
-            ->setOwner($user1);
+            ->setOwner($user1)
+            ->setIsPublished(true)
+        ;
 
         $em = $this->getEntityManager();
         $em->persist($cheeseListing);
