@@ -24,11 +24,33 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
 
         // 2. Create user and login
-        $this->createUserAdnLogin('user1@mail.com', 'xxxxxx');
+        $authenticatedUser = $this->createUserAdnLogin('authenticated@mail.com', 'authenticated');
 
-        // 3. Check the "Unprocessable entity" error (when the "not blank" validation for some fields is failed)
+        // 3. Create the other user
+        $otherUser = $this->createUser('other@mail.com', 'other');
+
+        // 4. Check the "Unprocessable entity" error (when the "not blank" validation for some fields is failed)
         $this->request(Routes::URL_CREATE_CHEESE_LISTING);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        // 5. Check if user can not create a cheese without owner
+        $cheeseData = [
+            'title' => 'Mystery cheese... kinda green',
+            'description' => 'What mysteries does it hold?',
+            'price' => 5000,
+        ];
+        $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'not passing the owner');
+
+        // 6. Check if user can not create a cheese with the owner not himself
+        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['id' => $otherUser->getId()]);
+        $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData + ['owner' => $ownerUri]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'not passing the correct owner');
+
+        // 7. Check if user can create a cheese with the owner himself
+        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['id' => $authenticatedUser->getId()]);
+        $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData + ['owner' => $ownerUri]);
+        $this->assertResponseIsSuccessful();
     }
 
     public function testUpdateCheeseListing()
@@ -54,7 +76,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $cheeseListing->getId()], [
             'title' => 'Updated',
         ]);
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertResponseIsSuccessful();
 
         // 4. Login the second user
         $this->login('user2@mail.com', '22222');
@@ -75,6 +97,6 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $cheeseListing->getId()], [
             'title' => 'Updated by admin',
         ]);
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertResponseIsSuccessful();
     }
 }

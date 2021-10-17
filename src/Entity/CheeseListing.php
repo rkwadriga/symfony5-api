@@ -9,6 +9,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\CheeseListingRepository;
+use App\Validator\IsValidOwner;
 use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use \DateTimeInterface;
@@ -127,10 +128,13 @@ class CheeseListing
     private bool $isPublished = false;
 
     /**
-     * @Assert\Valid()
+     * //Assert\Valid()
+     * @IsValidOwner()
+     * @Assert\NotBlank()
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"cheese:read", "cheese:write"})
+     * //Groups({"cheese:read", "cheese:write"})
+     * @Groups({"cheese:read", "cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
      */
     private User $owner;
 
