@@ -86,23 +86,32 @@ class UserResourceTest extends CustomApiTestCase
 
     public function testGetUser()
     {
-        // 1. Create user and login it
-        $user = $this->createUserAdnLogin('cheeseplease@example.com', 'qwerty');
+        // 1. Create user
+        $user = $this->createUser('cheeseplease@example.com', 'qwerty');
 
-        // 2. Set user's phone number
+        // 2. Create and login a different user
+        $this->createUserAdnLogin('authenticated@example.com', '1111111');
+
+        // 3. Set user's phone number
         $user->setPhoneNumber('(000) 111-222-333');
         $em = $this->getEntityManager();
         $em->persist($user);
         $em->flush();
 
-        // 3. Test "GET /api/users/<id>" method - the response should has be successful, has a "username" param and doesn't have a "phoneNumber" param
+        // 4. Test "GET /api/users/<id>" method - the response should has be successful, has a "username" param and doesn't have a "phoneNumber" param
         $this->request([Routes::URL_GET_USER, $user->getId()]);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['username' => 'cheeseplease']);
         $this->assertArrayNotHasKey('phoneNumber', $this->getResponseParams());
 
-        // 4. Create an admin user and chek is "GET /api/users/<id>" response has a "phoneNumber" param
+        // 5. Create an admin user and chek is "GET /api/users/<id>" response has a "phoneNumber" param
         $this->createUserAdnLogin('admin@mail.com', '00000', null, SecurityHelper::ROLE_ADMIN);
+        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['phoneNumber' => '(000) 111-222-333']);
+
+        // 6. Login the first user user and chek is "GET /api/users/<id>" response has a "phoneNumber" param
+        $this->login('cheeseplease@example.com', 'qwerty');
         $this->request([Routes::URL_GET_USER, $user->getId()]);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['phoneNumber' => '(000) 111-222-333']);

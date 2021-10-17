@@ -50,10 +50,6 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
         /** @var User|null $authenticatedUser */
         $authenticatedUser = $this->security->getUser();
 
-        if (!$authenticatedUser) {
-            return false;
-        }
-
-        return $authenticatedUser->getEmail() === $user->getEmail();
+        return $authenticatedUser !== null && $authenticatedUser->getEmail() === $user->getEmail();
     }
 }
