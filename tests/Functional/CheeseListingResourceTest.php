@@ -64,7 +64,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->assertResponseIsSuccessful();
     }
 
-    public function testUpdateCheeseListing()
+    public function testUpdateCheeseListing(): void
     {
         // 1. Create users
         $user1 = $this->createUser('user1@mail.com', '11111');
@@ -109,5 +109,43 @@ class CheeseListingResourceTest extends CustomApiTestCase
             'title' => 'Updated by admin',
         ]);
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testGetCheeseListingCollection(): void
+    {
+        // 1. Create user
+        $user = $this->createUser('needcheese@test.com', 'qwerty');
+
+        // 2. Create a few cheeses
+        $cheeseListing1 = new CheeseListing('cheese1');
+        $cheeseListing1
+            ->setOwner($user)
+            ->setPrice(1000)
+            ->setDescription('Cheese 1')
+        ;
+        $cheeseListing2 = new CheeseListing('cheese2');
+        $cheeseListing2
+            ->setOwner($user)
+            ->setPrice(2000)
+            ->setDescription('Cheese 2')
+            ->setIsPublished(true)
+        ;
+        $cheeseListing3 = new CheeseListing('cheese3');
+        $cheeseListing3
+            ->setOwner($user)
+            ->setPrice(3000)
+            ->setDescription('Cheese 3')
+            ->setIsPublished(true)
+        ;
+        $em = $this->getEntityManager();
+        $em->persist($cheeseListing1);
+        $em->persist($cheeseListing2);
+        $em->persist($cheeseListing3);
+        $em->flush();
+
+        // 3. Get cheese collection and check if response contains only "published" cheeses
+        $this->ldRequest(Routes::URL_GET_CHEESE_LISTINGS);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['hydra:totalItems' => 2]);
     }
 }

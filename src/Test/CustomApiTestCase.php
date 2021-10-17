@@ -94,9 +94,27 @@ abstract class CustomApiTestCase extends WebTestCase
             $method = $this->getRequestMethod($routeName);
         }
 
-        $uri = $this->getRequestUri($routeName, $parameters);
+        $uri = $this->getRequestUri($routeName, $parameters) ;
 
-        return $this->getClient()->jsonRequest($method, $uri, $params, $headers);
+        $client = $this->getClient();
+        $client->setServerParameter('CONTENT_TYPE', $this->requestContentType);
+        $client->setServerParameter('HTTP_ACCEPT', $this->requestAssept);
+
+        //return $this->getClient()->jsonRequest($method, $uri, $params, $headers);
+        return $this->getClient()->request($method, $uri, [], [], $headers, json_encode($params));
+    }
+
+    protected function ldRequest(mixed $route, array $params = [], array $headers = [], ?string $method = null): Crawler
+    {
+        // 'application/ld+json'
+        [$oldContentType, $oldAccept] = [$this->requestContentType, $this->requestAssept];
+        [$this->requestContentType, $this->requestAssept] = ['application/ld+json', 'application/ld+json'];
+
+        try {
+            return $this->request($route, $params, $headers, $method);
+        } finally {
+            [$this->requestContentType, $this->requestAssept] = [$oldContentType, $oldAccept];
+        }
     }
 
     protected function getClient(): KernelBrowser

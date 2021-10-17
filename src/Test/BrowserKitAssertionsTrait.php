@@ -10,6 +10,9 @@ use Symfony\Component\HttpClient\Exception\JsonException;
 
 trait BrowserKitAssertionsTrait
 {
+    protected string $requestContentType = 'application/json';
+    protected string $requestAssept = 'application/json';
+
     public function getResponseParams(mixed $params = null, mixed $defaultValue = null): mixed
     {
         // Decode content
