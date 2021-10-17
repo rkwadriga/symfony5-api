@@ -3,16 +3,20 @@
 namespace App\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Security\Core\Security;
 use App\Entity\User;
 
-class UserNormalizer implements NormalizerInterface, CacheableSupportsMethodInterface
+class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSupportsMethodInterface, NormalizerAwareInterface
 {
+    use NormalizerAwareTrait;
+
+    private const ALREADY_CALLED = 'USER_NORMALIZER_ALREADY_CALLED';
+
     public function __construct(
-        private Security $security,
-        private ObjectNormalizer $normalizer
+        private Security $security
     ) {}
 
     public function normalize($object, $format = null, array $context = []): array
@@ -21,6 +25,8 @@ class UserNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
             $context['groups'][] = 'owner:read';
         }
 
+        $context[self::ALREADY_CALLED] = true;
+
         $data = $this->normalizer->normalize($object, $format, $context);
 
         // Here: add, edit, or delete some data
@@ -28,15 +34,16 @@ class UserNormalizer implements NormalizerInterface, CacheableSupportsMethodInte
         return $data;
     }
 
-    public function supportsNormalization($data, $format = null): bool
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
-        return $data instanceof User;
+        return !isset($context[self::ALREADY_CALLED]) && $data instanceof User;
     }
 
     public function hasCacheableSupportsMethod(): bool
     {
-        return true;
+        return false;
     }
+
 
     private function userIsOwner(User $user): bool
     {
