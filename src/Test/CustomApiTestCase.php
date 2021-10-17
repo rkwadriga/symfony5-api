@@ -85,16 +85,10 @@ abstract class CustomApiTestCase extends WebTestCase
 
     protected function request(mixed $route, array $params = [], array $headers = [], ?string $method = null): Crawler
     {
-        [$routeName, $parameters] = is_array($route) ? $route : [$route, []];
-        if (!is_array($parameters)) {
-            $parameters = ['id' => $parameters];
-        }
-
         if ($method === null) {
-            $method = $this->getRequestMethod($routeName);
+            $method = $this->getRequestMethod($route);
         }
-
-        $uri = $this->getRequestUri($routeName, $parameters) ;
+        $uri = $this->getRequestUri($route);
 
         $client = $this->getClient();
         $client->setServerParameter('CONTENT_TYPE', $this->requestContentType);

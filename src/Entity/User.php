@@ -101,7 +101,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @Assert\Valid()
      * @ORM\OneToMany(targetEntity=CheeseListing::class, mappedBy="owner", cascade={"persist"}, orphanRemoval=true)
-     * @Groups({"user:read", "user:write"})
+     * @Groups({"user:write"})
      * @ApiSubresource() // Needed to make possible to get user's cheeses collection by uri "/api/users/<user ID>/cheese_listings"
      */
     private $cheeseListings;
@@ -256,6 +256,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }*/
 
         return $this;
+    }
+
+    /**
+     * @Groups({"user:read"})
+     * @SerializedName("cheeseListings")
+     */
+    public function getPublishedCheeseListings(): Collection
+    {
+        return $this->cheeseListings->filter(function (CheeseListing $cheeseListing) {
+            return $cheeseListing->getIsPublished();
+        });
     }
 
     public function getPhoneNumber(): ?string

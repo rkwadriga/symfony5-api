@@ -156,20 +156,43 @@ class CheeseListingResourceTest extends CustomApiTestCase
         // 1. Create user
         $user = $this->createUser('needcheese@test.com', 'qwerty');
 
-        // 2. Create a cheese
-        $cheeseListing1 = new CheeseListing('cheese1');
-        $cheeseListing1
+        // 2. Create 2 cheeses - published and unpublished
+        $unpublishedCheeseListing = new CheeseListing('cheese1');
+        $unpublishedCheeseListing
             ->setOwner($user)
             ->setPrice(1000)
             ->setDescription('Cheese 1')
             ->setIsPublished(false)
         ;
+        $publishedCheeseListing = new CheeseListing('cheese1');
+        $publishedCheeseListing
+            ->setOwner($user)
+            ->setPrice(1000)
+            ->setDescription('Cheese 1')
+            ->setIsPublished(true)
+        ;
         $em = $this->getEntityManager();
-        $em->persist($cheeseListing1);
+        $em->persist($unpublishedCheeseListing);
+        $em->persist($publishedCheeseListing);
         $em->flush();
 
         // 3. Unpublished cheese should not be visible
-        $this->ldRequest([Routes::URL_GET_CHEESE_LISTING, $cheeseListing1->getId()]);
+        $this->ldRequest([Routes::URL_GET_CHEESE_LISTING, $unpublishedCheeseListing->getId()]);
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+
+        // 4. login user and check is published cheese should be visible
+        $this->login($user->getEmail(), 'qwerty');
+        $this->ldRequest([Routes::URL_GET_CHEESE_LISTING, $publishedCheeseListing->getId()]);
+        $this->assertResponseIsSuccessful();
+
+        // 5. Get user's info and check that user has only one cheese in it's "cheeseListings" param
+        $getUserRequestString = $this->getRequestAsString([Routes::URL_GET_USER, $user->getId()]);
+        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        $cheeseListings = $this->getResponseParams('cheeseListings');
+        $this->assertIsArray($cheeseListings, sprintf('The response of "%s" request does not contain the "cheeseListings" param (array): %s',
+            $getUserRequestString,
+            $this->getClient()->getResponse()->getContent()
+        ));
+        $this->assertCount(1, $cheeseListings);
     }
 }
