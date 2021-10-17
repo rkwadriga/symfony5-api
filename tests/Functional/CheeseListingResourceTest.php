@@ -33,16 +33,27 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->request(Routes::URL_CREATE_CHEESE_LISTING);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
 
-        // 5. Check if user can not create a cheese without owner
+        // 5. Create a cheese listing without owner and check s it's owner was automatically set to logged-in user
+        $createCheeseRequestString = $this->getRequestAsString(Routes::URL_CREATE_CHEESE_LISTING);
         $cheeseData = [
             'title' => 'Mystery cheese... kinda green',
             'description' => 'What mysteries does it hold?',
             'price' => 5000,
         ];
         $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData);
-        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'not passing the owner');
+        $this->assertResponseIsSuccessful();
+        $newCheeseID = $this->getResponseParams('id');
+        $this->assertNotNull($newCheeseID, sprintf('The response of "%s" request does not contain the "id" param: %s',
+            $createCheeseRequestString,
+            $this->getClient()->getResponse()->getContent()
+        ));
+        /** @var CheeseListing $newCheese */
+        $newCheese = $this->getEntityManager()->getRepository(CheeseListing::class)->find($newCheeseID);
+        $this->assertNotNull($newCheese);
+        $this->assertEquals($authenticatedUser->getId(), $newCheese->getOwner()->getId());
 
         // 6. Check if user can not create a cheese with the owner not himself
+        $cheeseData['title'] = 'New mystery cheese';
         $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['id' => $otherUser->getId()]);
         $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData + ['owner' => $ownerUri]);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'not passing the correct owner');

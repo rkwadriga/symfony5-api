@@ -20,6 +20,7 @@ use App\Entity\User;
 abstract class CustomApiTestCase extends WebTestCase
 {
     use ApiTestAssertionsTrait;
+    use ApiRoutesTrait;
 
     protected ?KernelBrowser $client = null;
 
@@ -84,17 +85,16 @@ abstract class CustomApiTestCase extends WebTestCase
 
     protected function request(mixed $route, array $params = [], array $headers = [], ?string $method = null): Crawler
     {
-        [$roteName, $parameters] = is_array($route) ? $route : [$route, []];
+        [$routeName, $parameters] = is_array($route) ? $route : [$route, []];
         if (!is_array($parameters)) {
             $parameters = ['id' => $parameters];
         }
 
         if ($method === null) {
-            $methods = $this->getRouter()->getRouteCollection()->get($roteName)->getMethods();
-            $method = array_shift($methods);
+            $method = $this->getRequestMethod($routeName);
         }
 
-        $uri = $this->getRouter()->generate($roteName, $parameters);
+        $uri = $this->getRequestUri($routeName, $parameters);
 
         return $this->getClient()->jsonRequest($method, $uri, $params, $headers);
     }
@@ -116,7 +116,7 @@ abstract class CustomApiTestCase extends WebTestCase
         return self::getContainer()->get(EntityManagerInterface::class);
     }
 
-    public function getRouter(): RouterInterface
+    protected function getRouter(): RouterInterface
     {
         // Init client
         $this->getClient();

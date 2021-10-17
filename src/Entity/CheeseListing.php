@@ -79,6 +79,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 ]
 /**
  * @ORM\Entity (repositoryClass=CheeseListingRepository::class)
+ * @ORM\EntityListeners({"App\Doctrine\CheeseListingSetOwnerListener"})
  */
 class CheeseListing
 {
@@ -86,6 +87,7 @@ class CheeseListing
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"cheese:read"})
      */
     private int $id;
 
@@ -130,13 +132,13 @@ class CheeseListing
     /**
      * //Assert\Valid()
      * @IsValidOwner()
-     * @Assert\NotBlank()
+     * //Assert\NotBlank()
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)
      * //Groups({"cheese:read", "cheese:write"})
      * @Groups({"cheese:read", "cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
      */
-    private User $owner;
+    private ?User $owner = null;
 
     public function __construct(string $title = null)
     {
@@ -229,7 +231,7 @@ class CheeseListing
         return $this;
     }
 
-    public function getOwner(): User
+    public function getOwner(): ?User
     {
         return $this->owner;
     }
