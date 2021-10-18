@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * Created 2021-10-11
+ * Created 2021-10-18
  * Author Dmitry Kushneriov
  */
 
@@ -11,7 +11,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
-class DataPersister implements DataPersisterInterface
+class UserDataPersister implements DataPersisterInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,

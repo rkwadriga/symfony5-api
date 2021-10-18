@@ -2,16 +2,46 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\User;
+use App\Factory\CheeseListingFactory;
+use App\Factory\UserFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(
+        private PasswordHasherFactoryInterface $encoder
+    ) {}
+
     public function load(ObjectManager $manager)
     {
-        // $product = new Product();
-        // $manager->persist($product);
+        $user = UserFactory::new()->create([
+            'email' => 'cheesefan@example.com',
+            'username' => 'cheesefan',
+            'pass' => $this->encoder->getPasswordHasher(new User())->hash('cheese'),
+        ]);
+        UserFactory::new()->createMany(50);
 
-        $manager->flush();
+        $listingFactory = CheeseListingFactory::new([
+                'owner' => $user,
+            ])
+            ->published();
+
+        $listingFactory->create([
+            'title' => 'Mysterious munster',
+            'description' => 'Origin date: unknown. Actual origin... also unknown.',
+            'price' => 1500,
+        ]);
+
+        $listingFactory->create([
+            'title' => 'Block of cheddar the size of your face!',
+            'description' => 'When I drive it to your house, it will sit in the passenger seat of my car.',
+            'price' => 5000,
+        ]);
+
+        // then create 30 more
+        $listingFactory->createMany(50);
     }
 }
