@@ -7,6 +7,7 @@
 namespace Functional;
 
 use App\Factory\CheeseListingFactory;
+use App\Factory\CheeseNotificationFactory;
 use App\Factory\UserFactory;
 use App\Test\Routes;
 use App\Entity\CheeseListing;
@@ -225,5 +226,14 @@ class CheeseListingResourceTest extends CustomApiTestCase
         // 4. Check is cheese published
         $cheeseListing->refresh();
         $this->assertTrue($cheeseListing->getIsPublished());
+
+        // 5. Test cheese publishing notification
+        CheeseNotificationFactory::repository()->assert()->count(1, 'There should be one notification about being published.');
+
+        // 6. Update cheese listing again and check is there is steel one notification
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $cheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        CheeseNotificationFactory::repository()->assert()->count(1);
     }
 }
