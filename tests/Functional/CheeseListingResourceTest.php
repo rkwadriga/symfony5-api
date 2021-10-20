@@ -6,16 +6,22 @@
 
 namespace Functional;
 
+use App\Factory\CheeseListingFactory;
+use App\Factory\UserFactory;
 use App\Test\Routes;
 use App\Entity\CheeseListing;
 use App\Security\SecurityHelper;
 use App\Test\CustomApiTestCase;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Component\HttpFoundation\Response;
+//use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
 class CheeseListingResourceTest extends CustomApiTestCase
 {
-    use ReloadDatabaseTrait;
+    //use ReloadDatabaseTrait;
+    use Factories;
+    use ResetDatabase;
 
     public function testCreateCheeseListing(): void
     {
@@ -194,5 +200,30 @@ class CheeseListingResourceTest extends CustomApiTestCase
             $this->getClient()->getResponse()->getContent()
         ));
         $this->assertCount(1, $cheeseListings);
+    }
+
+    public function testPublishCheeseListing(): void
+    {
+        // Init client
+        $this->getClient();
+
+        // 1. Create a user
+        $user = UserFactory::new()->create();
+
+        // 2. Create a new cheese listing and set just created user as it's owner
+        $cheeseListing = CheeseListingFactory::new()->create([
+            'owner' => $user
+        ]);
+
+        // 3. Login user and check is cheese created
+        $this->login($user);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $cheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // 4. Check is cheese published
+        $cheeseListing->refresh();
+        $this->assertTrue($cheeseListing->getIsPublished());
     }
 }

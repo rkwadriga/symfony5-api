@@ -6,6 +6,7 @@
 
 namespace App\Test;
 
+use App\Factory\UserFactory;
 use App\Security\SecurityHelper;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\RouterInterface;
 use App\Entity\User;
+use Zenstruck\Foundry\Proxy;
 
 abstract class CustomApiTestCase extends WebTestCase
 {
@@ -51,8 +53,20 @@ abstract class CustomApiTestCase extends WebTestCase
         return $user;
     }
 
-    protected function login(string $email, string $password): void
+    protected function login($userOrEmail, string $password = UserFactory::DEFAULT_PASSWORD): void
     {
+        if ($userOrEmail instanceof User || $userOrEmail instanceof Proxy) {
+            $email = $userOrEmail->getEmail();
+        } elseif (is_string($userOrEmail)) {
+            $email = $userOrEmail;
+        } else {
+            throw new \InvalidArgumentException(sprintf(
+                'Argument 2 to "%s" should be a User, Foundry Proxy or string email, "%s" given',
+                __METHOD__,
+                is_object($userOrEmail) ? get_class($userOrEmail) : gettype($userOrEmail)
+            ));
+        }
+
         $this->request(Routes::URL_LOGIN, [
             'email' => $email,
             'password' => $password
