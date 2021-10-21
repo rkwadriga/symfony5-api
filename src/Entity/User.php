@@ -112,7 +112,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *                                       // ...they'll be dynamically added to the context in the App\Serializer\AdminGroupsContextBuilder.
      *                                       // The "owner:read" group allows to se only your own phone number (look at App\Serializer\Normalizer\UserNormalizer class)
      */
-    private $phoneNumber;
+    private ?string $phoneNumber = null;
+
+    /**
+     * Returns true if this is the currently-authenticated user
+     *
+     * @Groups({"user:read"})
+     */
+    private ?bool $isMe = null;
 
     public function __construct()
     {
@@ -277,6 +284,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhoneNumber(?string $phoneNumber): self
     {
         $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+    public function getIsMe(): bool
+    {
+        if ($this->isMe === null) {
+            throw new \LogicException('The "isMe" field has not been initialized');
+        }
+
+        return $this->isMe;
+    }
+
+    public function setIsMe(bool $isMe): self
+    {
+        $this->isMe = $isMe;
 
         return $this;
     }

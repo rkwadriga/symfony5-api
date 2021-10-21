@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\SecurityHelper;
 use Zenstruck\Foundry\RepositoryProxy;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
@@ -20,6 +21,17 @@ use Zenstruck\Foundry\Proxy;
 final class UserFactory extends ModelFactory
 {
     const DEFAULT_PASSWORD = 'test';
+    const DEFAULT_PHONE_NUMBER = '(000) 111-222-333';
+
+    public function admin(): self
+    {
+        return $this->addState(['roles' => [SecurityHelper::ROLE_ADMIN]]);
+    }
+
+    public function withPhoneNumber(string $number = self::DEFAULT_PHONE_NUMBER): self
+    {
+        return $this->addState(['phoneNumber' => $number]);
+    }
 
     protected function getDefaults(): array
     {

@@ -7,6 +7,7 @@
 namespace Functional;
 
 use App\Entity\User;
+use App\Factory\UserFactory;
 use App\Security\SecurityHelper;
 use App\Test\Routes;
 use App\Test\CustomApiTestCase;
@@ -86,41 +87,42 @@ class UserResourceTest extends CustomApiTestCase
 
     public function testGetUser()
     {
-        // 1. Create user
-        $user = $this->createUser('cheeseplease@example.com', 'qwerty');
+        // Init the client
+        $this->getClient();
 
-        // 2. Create and login a different user
-        $this->createUserAdnLogin('authenticated@example.com', '1111111');
+        // 1. Create 2 users and admin
+        $user1 = UserFactory::new()->withPhoneNumber()->create();
+        $user2 = UserFactory::new()->create();
+        $admin = UserFactory::new()->admin()->create();
 
-        // 3. Set user's phone number
-        $user->setPhoneNumber('(000) 111-222-333');
-        $em = $this->getEntityManager();
-        $em->persist($user);
-        $em->flush();
-
-        // 4. Test "GET /api/users/<id>" method - the response should has be successful, has a "username" param and doesn't have a "phoneNumber" param
-        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        // 2. Login the second user and check "GET /api/users/<id>" method
+        // ... the response should has be successful, has a "username" param and doesn't have a "phoneNumber" param
+        // ... and have param "isMe" equals to false
+        $this->login($user2);
+        $this->request([Routes::URL_GET_USER, $user1->getId()]);
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['username' => 'cheeseplease']);
+        $this->assertJsonContains(['username' => $user1->getUsername(), 'isMe' => false]);
         $this->assertArrayNotHasKey('phoneNumber', $this->getResponseParams());
 
-        // 5. Create an admin user and chek is "GET /api/users/<id>" response has a "phoneNumber" param
-        $this->createUserAdnLogin('admin@mail.com', '00000', null, SecurityHelper::ROLE_ADMIN);
-        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        // 3. Login admin and chek is "GET /api/users/<id>" response has a "phoneNumber" param and param "isMe" equals to false
+        $this->login($admin);
+        $this->request([Routes::URL_GET_USER, $user1->getId()]);
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['phoneNumber' => '(000) 111-222-333']);
+        $this->assertJsonContains(['phoneNumber' => $user1->getPhoneNumber(), 'isMe' => false]);
 
-        // 6. Login the first user user and chek is "GET /api/users/<id>" response has a "phoneNumber" param
-        $this->login('cheeseplease@example.com', 'qwerty');
-        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        // 4. Login the first user user and chek is "GET /api/users/<id>" response has a "phoneNumber" param, adn "isMe" param equals to true
+        $this->login($user1);
+        $this->request([Routes::URL_GET_USER, $user1->getId()]);
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['phoneNumber' => '(000) 111-222-333']);
+        $this->assertJsonContains(['phoneNumber' => $user1->getPhoneNumber(), 'isMe' => true]);
     }
 
     public function testGetUsersCollection()
     {
+        static $USERS_LIST_SIZE = 5;
+
         // 3. Create a few users
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= $USERS_LIST_SIZE; $i++) {
             $user = $this->createUser("cheeseplease_{$i}@example.com", 'qwerty');
             $user->setPhoneNumber("(000) {$i}{$i}{$i}-222-333");
             $em = $this->getEntityManager();
@@ -129,12 +131,20 @@ class UserResourceTest extends CustomApiTestCase
         }
 
         // 2. Login the last of created users
-        $this->login($user->getEmail(), 'qwerty');
+        /** @var User $user */
+        $this->login($user, 'qwerty');
 
-        // 3. Get users list
+        // 3. Get users list anc chek that there are 5 users returned,
+        // ... each of them has "isMe" and "email" params
+        // ... and only the last user has "isMe" field equals to true
         $this->request(Routes::URL_GET_USERS);
         $this->assertResponseIsSuccessful();
-        $params = $this->getResponseParams();
-        $this->assertCount(5, $params);
+        $users = $this->getResponseParams();
+        $this->assertCount($USERS_LIST_SIZE, $users);
+        foreach ($users as $userParams) {
+            $this->assertArrayHasKey('isMe', $userParams);
+            $this->assertArrayHasKey('email', $userParams);
+            $this->assertEquals($userParams['email'] === $user->getEmail(), $userParams['isMe']);
+        }
     }
 }

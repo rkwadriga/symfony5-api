@@ -29,11 +29,12 @@ class UserNormalizer implements ContextAwareNormalizerInterface, CacheableSuppor
 
         $context[self::ALREADY_CALLED] = true;
 
-        $data = $this->normalizer->normalize($object, $format, $context);
+        // Bad decision: the API documentation know about this field nothing. So, look on the DataProvider
+        //$data = $this->normalizer->normalize($object, $format, $context);
+        //$data['isMe'] = $isOwner;
+        //return $data;
 
-        $data['isMe'] = $isOwner;
-
-        return $data;
+        return $this->normalizer->normalize($object, $format, $context);
     }
 
     public function supportsNormalization($data, $format = null, array $context = []): bool
