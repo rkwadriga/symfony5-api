@@ -212,11 +212,12 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $user = UserFactory::new()->create();
 
         // 2. Create a new cheese listing and set just created user as it's owner
-        $cheeseListing = CheeseListingFactory::new()->create([
-            'owner' => $user
-        ]);
+        $cheeseListing = CheeseListingFactory::new()
+            ->withLongDescription()
+            ->create(['owner' => $user])
+        ;
 
-        // 3. Login user and check is cheese created
+        // 3. Login user and check is cheese publication request successful
         $this->login($user);
         $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $cheeseListing->getId()], [
             'isPublished' => true,
@@ -235,5 +236,69 @@ class CheeseListingResourceTest extends CustomApiTestCase
             'isPublished' => true,
         ]);
         CheeseNotificationFactory::repository()->assert()->count(1);
+    }
+
+    public function testPublishCheeseListingValidation(): void
+    {
+        // Load the client
+        $this->getClient();
+
+        // 1. Create user and admin
+        $user = UserFactory::new()->create();
+        $admin = UserFactory::new()->create(['roles' => [SecurityHelper::ROLE_ADMIN]]);
+
+        // 2. Create a cheese with a short description
+        // ... acn check is user and admin can publish this cheese
+        $shortCheeseListing = CheeseListingFactory::new()->create(['owner' => $user, 'description' => 'Short']);
+        // 2.1. Check for user
+        $this->login($user);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $shortCheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'Description is too short');
+        // 2.1. Check for admin
+        $this->login($admin);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $shortCheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $shortCheeseListing->refresh();
+        $this->assertTrue($shortCheeseListing->getIsPublished());
+
+        // 3. The same like for 2 but with long description
+        $longCheeseListing = CheeseListingFactory::new()
+            ->withLongDescription()
+            ->create(['owner' => $user])
+        ;
+        // 3.1. Check for user
+        $this->login($user);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $longCheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $longCheeseListing->refresh();
+        $this->assertTrue($longCheeseListing->getIsPublished());
+        // 3.1. Check for admin
+        $this->login($admin);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $longCheeseListing->getId()], [
+            'isPublished' => true,
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // 4. Only admin cah unpublish cheese
+        // 4.1. Check for user
+        $this->login($user);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $longCheeseListing->getId()], [
+            'isPublished' => false,
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'Only admin cah unpublish the cheese listing');
+        // 4.2. Check for admin
+        $this->login($admin);
+        $this->request([Routes::URL_UPDATE_CHEESE_LISTING, $longCheeseListing->getId()], [
+            'isPublished' => false,
+        ]);
+        $this->assertResponseIsSuccessful();
+        $longCheeseListing->refresh();
+        $this->assertFalse($longCheeseListing->getIsPublished());
     }
 }
