@@ -28,10 +28,11 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, R
         // In this case our collectionDataProvider is ApiPlatform\Core\Bridge\Doctrine\Orm\CollectionDataProvider
         $users = $this->collectionDataProvider->getCollection($resourceClass, $operationName, $context);
 
-        $currentUser = $this->security->getUser();
+        // Now handled in event listener
+        /*$currentUser = $this->security->getUser();
         foreach ($users as $user) {
             $user->setIsMe($user === $currentUser);
-        }
+        }*/
 
         return $users;
     }
@@ -41,11 +42,13 @@ class UserDataProvider implements ContextAwareCollectionDataProviderInterface, R
         return $resourceClass === User::class;
     }
 
-    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = []): ?User
+    public function getItem(string $resourceClass, $id, string $operationName = null, array $context = [])
     {
+        // Now handled in event listener
         /** @var User|null $item */
-        $item = $this->itemDataProvider->getItem($resourceClass, $id, $operationName, $context);
+        /*$item = $this->itemDataProvider->getItem($resourceClass, $id, $operationName, $context);
+        return $item !== null ? $item->setIsMe($item === $this->security->getUser()) : null;*/
 
-        return $item !== null ? $item->setIsMe($item === $this->security->getUser()) : null;
+        return $this->itemDataProvider->getItem($resourceClass, $id, $operationName, $context);
     }
 }

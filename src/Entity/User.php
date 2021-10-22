@@ -119,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @Groups({"user:read"})
      */
-    private ?bool $isMe = null;
+    private bool $isMe = false;
 
     public function __construct()
     {
@@ -290,10 +290,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getIsMe(): bool
     {
-        if ($this->isMe === null) {
-            throw new \LogicException('The "isMe" field has not been initialized');
-        }
-
         return $this->isMe;
     }
 

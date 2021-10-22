@@ -46,7 +46,8 @@ class UserDataPersister implements ContextAwareDataPersisterInterface
             $data->eraseCredentials();
         }
 
-        $data->setIsMe($data === $this->security->getUser());
+        // Now handled in event listener
+        // $data->setIsMe($data === $this->security->getUser());
 
         $this->decoratedDataPersister->persist($data);
     }
