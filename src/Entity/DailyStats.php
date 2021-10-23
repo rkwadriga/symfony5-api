@@ -7,7 +7,6 @@
 namespace App\Entity;
 
 use \DateTimeInterface;
-use ApiPlatform\Core\Action\NotFoundAction;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         itemOperations: [
             /*"get" => [
                 "method" => "get",
-                "controller" => NotFoundAction::class,
+                "controller" => ApiPlatform\Core\Action\NotFoundAction::class,
                 "read" => false,
                 "output" => false
             ]*/
@@ -29,7 +28,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         shortName: "daily-stats", // Also look at the "path_segment_name_generator" option in config/packages/api_platform.yaml
         normalizationContext: [
             "groups" => ["daily-stats:read"]
-        ]
+        ],
+        paginationItemsPerPage: 7
     )
 ]
 /**
