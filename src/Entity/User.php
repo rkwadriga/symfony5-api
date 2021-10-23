@@ -278,6 +278,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @Groups({"user:read"})
      * @SerializedName("cheeseListings")
+     *
+     * @return Collection<CheeseListing>
      */
     public function getPublishedCheeseListings(): Collection
     {

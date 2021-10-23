@@ -6,7 +6,6 @@
 
 namespace App\Entity;
 
-use \DateTime;
 use \DateTimeInterface;
 use ApiPlatform\Core\Action\NotFoundAction;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -19,12 +18,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
             "get"
         ],
         itemOperations: [
-            "get" => [
+            /*"get" => [
                 "method" => "get",
                 "controller" => NotFoundAction::class,
                 "read" => false,
                 "output" => false
-            ]
+            ]*/
+            "get"
         ],
         shortName: "daily-stats", // Also look at the "path_segment_name_generator" option in config/packages/api_platform.yaml
         normalizationContext: [
@@ -32,6 +32,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ]
     )
 ]
+/**
+ * @property array<CheeseListing> $mostPopularListings
+ */
 class DailyStats
 {
     public function __construct(
@@ -48,7 +51,7 @@ class DailyStats
         /**
          * The 5 most popular cheese listings from this date
          *
-         * @var CheeseListing[]
+         * @var array<CheeseListing>
          *
          * @Groups({"daily-stats:read"})
          */
