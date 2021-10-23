@@ -6,14 +6,15 @@
 
 namespace App\Entity;
 
+use \DateTime;
+use \DateTimeInterface;
 use ApiPlatform\Core\Action\NotFoundAction;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
-use DateTime;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[
     ApiResource(
-        //shortName: "daily-stats" // look for the "path_segment_name_generator" option in config/packages/api_platform.yaml
         collectionOperations: [
             "get"
         ],
@@ -24,31 +25,41 @@ use DateTime;
                 "read" => false,
                 "output" => false
             ]
+        ],
+        shortName: "daily-stats", // Also look at the "path_segment_name_generator" option in config/packages/api_platform.yaml
+        normalizationContext: [
+            "groups" => ["daily-stats:read"]
         ]
     )
 ]
 class DailyStats
 {
-    /**
-     * @var DateTime|null
-     */
-    public ?DateTime $date = null;
+    public function __construct(
+        /**
+         * @Groups({"daily-stats:read"})
+         */
+        public DateTimeInterface $date,
 
-    /**
-     * @var int|null
-     */
-    public ?int $totalVisitors = null;
+        /**
+         * @Groups({"daily-stats:read"})
+         */
+        public int $totalVisitors,
 
-    /**
-     * @var CheeseListing[]
-     */
-    public array $mostPopularListings = [];
+        /**
+         * The 5 most popular cheese listings from this date
+         *
+         * @var CheeseListing[]
+         *
+         * @Groups({"daily-stats:read"})
+         */
+        public array $mostPopularListings
+    ) {}
 
     /**
      * @ApiProperty(identifier=true)
      */
-    public function getDateString(): ?string
+    public function getDateString(): string
     {
-        return $this->date !== null ? $this->date->format('Y-m-d') : null;
+        return $this->date->format('Y-m-d');
     }
 }

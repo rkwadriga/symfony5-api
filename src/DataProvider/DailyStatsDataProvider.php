@@ -15,9 +15,7 @@ class DailyStatsDataProvider implements CollectionDataProviderInterface, Restric
 {
     public function getCollection(string $resourceClass, string $operationName = null)
     {
-        $stats = new DailyStats();
-        $stats->date = new DateTime();
-        $stats->totalVisitors = 100;
+        $stats = new DailyStats(new DateTime(), 100, []);
 
         return [$stats];
     }
