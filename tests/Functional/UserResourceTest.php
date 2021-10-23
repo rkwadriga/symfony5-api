@@ -85,13 +85,13 @@ class UserResourceTest extends CustomApiTestCase
         $this->assertEquals([SecurityHelper::ROLE_USER], $dbUser->getRoles());*/
     }
 
-    public function testGetUser()
+    public function testGetUserItem()
     {
         // Init the client
         $this->getClient();
 
         // 1. Create 2 users and admin
-        $user1 = UserFactory::new()->withPhoneNumber()->create();
+        $user1 = UserFactory::new()->withPhoneNumber()->create(['username' => 'cheesehead']);
         $user2 = UserFactory::new()->create();
         $admin = UserFactory::new()->admin()->create();
 
@@ -101,7 +101,11 @@ class UserResourceTest extends CustomApiTestCase
         $this->login($user2);
         $this->request([Routes::URL_GET_USER, $user1->getId()]);
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['username' => $user1->getUsername(), 'isMe' => false]);
+        $this->assertJsonContains([
+            'username' => $user1->getUsername(),
+            'isMe' => false,
+            'isMvp' => true, // Username contains "cheese" word, so it's and MVP!
+        ]);
         $this->assertArrayNotHasKey('phoneNumber', $this->getResponseParams());
 
         // 3. Login admin and chek is "GET /api/users/<id>" response has a "phoneNumber" param and param "isMe" equals to false

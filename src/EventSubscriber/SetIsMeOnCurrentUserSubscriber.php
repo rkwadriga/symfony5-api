@@ -13,25 +13,22 @@ class SetIsMeOnCurrentUserSubscriber implements EventSubscriberInterface
         private Security $security
     ) {}
 
+    public static function getSubscribedEvents()
+    {
+        return [
+            RequestEvent::class => 'onKernelRequest',
+        ];
+    }
+
     public function onKernelRequest(RequestEvent $event)
     {
         if (!$event->isMainRequest()) {
             return;
         }
 
-        /** @var User|null $user */
         $user = $this->security->getUser();
-        if ($user === null) {
-            return;
+        if ($user instanceof User) {
+            $user->setIsMe(true);
         }
-
-        $user->setIsMe(true);
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [
-            RequestEvent::class => 'onKernelRequest',
-        ];
     }
 }

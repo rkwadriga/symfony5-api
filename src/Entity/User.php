@@ -7,6 +7,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\UserRepository;
+use App\Doctrine\UserSetIsMvpListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,6 +17,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\String\LazyString;
 
 #[
     ApiResource(
@@ -53,6 +55,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 ]
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ORM\EntityListeners({UserSetIsMvpListener::class})
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -120,6 +123,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @Groups({"user:read"})
      */
     private bool $isMe = false;
+
+    /**
+     * Returns true if this user is MVP (in out case it means that username contains "cheese" word, look for UserSetIsMvpListener)
+     *
+     * @Groups({"user:read"})
+     */
+    private bool $isMvp = false;
 
     public function __construct()
     {
@@ -296,6 +306,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsMe(bool $isMe): self
     {
         $this->isMe = $isMe;
+
+        return $this;
+    }
+
+    public function getIsMvp(): bool
+    {
+        return $this->isMvp;
+    }
+
+    public function setIsMvp(bool $isMvp): self
+    {
+        $this->isMvp = $isMvp;
 
         return $this;
     }
