@@ -9,7 +9,7 @@ namespace Functional;
 use App\Factory\CheeseListingFactory;
 use App\Factory\CheeseNotificationFactory;
 use App\Factory\UserFactory;
-use App\Test\Routes;
+use App\ApiPlatform\Routes;
 use App\Entity\CheeseListing;
 use App\Security\SecurityHelper;
 use App\Test\CustomApiTestCase;

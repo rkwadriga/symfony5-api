@@ -8,6 +8,7 @@ namespace App\Test;
 
 use App\Factory\UserFactory;
 use App\Security\SecurityHelper;
+use App\ApiPlatform\Routes;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;

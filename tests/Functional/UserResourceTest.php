@@ -9,7 +9,7 @@ namespace Functional;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Security\SecurityHelper;
-use App\Test\Routes;
+use App\ApiPlatform\Routes;
 use App\Test\CustomApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 use Symfony\Component\HttpFoundation\Response;
