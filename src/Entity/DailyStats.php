@@ -23,9 +23,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 "read" => false,
                 "output" => false
             ]*/
-            "get"
+            "get",
+            "put"
         ],
         shortName: "daily-stats", // Also look at the "path_segment_name_generator" option in config/packages/api_platform.yaml
+        denormalizationContext: [
+            "groups" => ["daily-stats:write"]
+        ],
         normalizationContext: [
             "groups" => ["daily-stats:read"]
         ],
@@ -44,7 +48,7 @@ class DailyStats
         public DateTimeInterface $date,
 
         /**
-         * @Groups({"daily-stats:read"})
+         * @Groups({"daily-stats:read", "daily-stats:write"})
          */
         public int $totalVisitors,
 
