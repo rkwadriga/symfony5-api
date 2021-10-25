@@ -17,6 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\ValidIsPublished;
+use App\ApiPlatform\CheeseSearchFilter;
 
 #[
     ApiResource(
@@ -75,6 +76,7 @@ use App\Validator\ValidIsPublished;
         "owner" => "exact", // Needed for filtering the collection by owner (add to the uri something like "?owner=/api/users/<user ID>")
         "owner.username" => "partial" // Needed for filtering the collection by owner.username (add to the uri something like "?owner.username=<part of the owner's username>")
     ]),
+    ApiFilter(CheeseSearchFilter::class),
     ApiFilter(RangeFilter::class, properties: ["price"]),
     ApiFilter(PropertyFilter::class), // Make possible send response like "GET /cheeses-list?properties[]=title&properties[]=price"
     ValidIsPublished(['descriptionMinLength' => 100])
