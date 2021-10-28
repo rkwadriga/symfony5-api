@@ -4,17 +4,18 @@ services:
     ports:
       - "3330:3306"
     volumes:
+      - ./.docker/mysql/init:/docker-entrypoint-initdb.d
       - ./.docker/mysql/data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: my_db
+      #MYSQL_DATABASE: my_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
   php: # docker-compose run php bash
     build: './.docker/php'
     ports:
-      - "8080:80"
+      - "8888:80"
     tty: true
     environment:
       PHP_IDE_CONFIG: "serverName=Docker"
