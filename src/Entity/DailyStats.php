@@ -37,7 +37,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ],
         paginationItemsPerPage: 7
     ),
-    ApiFilter(DailyStatsDataFilter::class)
+    ApiFilter(DailyStatsDataFilter::class, arguments: [
+        "throwOnInvalid" => true
+    ])
 ]
 /**
  * @property array<CheeseListing> $mostPopularListings
