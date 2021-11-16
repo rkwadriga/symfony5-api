@@ -1,17 +1,19 @@
 services:
   db:
     build: './.docker/mysql'
-    ports:
-      - "3330:3306"
     volumes:
-      - ./.docker/mysql/init:/docker-entrypoint-initdb.d
       - ./.docker/mysql/data:/var/lib/mysql
+      - ./.docker/mysql/init:/docker-entrypoint-initdb.d/
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      #MYSQL_DATABASE: my_db
+      MYSQL_DATABASE: my_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "3330:3306"
   php: # docker-compose run php bash
     build: './.docker/php'
     ports:
