@@ -6,6 +6,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use App\ApiPlatform\DailyStatsDataFilter;
 use \DateTimeInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
@@ -34,7 +36,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
             "groups" => ["daily-stats:read"]
         ],
         paginationItemsPerPage: 7
-    )
+    ),
+    ApiFilter(DailyStatsDataFilter::class)
 ]
 /**
  * @property array<CheeseListing> $mostPopularListings

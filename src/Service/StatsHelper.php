@@ -23,30 +23,15 @@ class StatsHelper
      */
     public function fetchMany(int $limit = null, int $offset = null, array $criteria = [])
     {
-        $fromDate = $criteria['from'] ?? null;
-        $toDate = $criteria['to'] ?? null;
-
         $i = 0;
         $stats = [];
-        foreach ($this->fetchStatsData() as $statData) {
+        foreach ($this->fetchStatsData($criteria) as $statData) {
             $i++;
             if ($offset >= $i) {
-
                 continue;
             }
 
-            $dateString = $statData['date'];
-            $date = new \DateTimeImmutable($dateString);
-
-            if ($fromDate && $date < $fromDate) {
-                continue;
-            }
-
-            if ($toDate && $date > $toDate) {
-                continue;
-            }
-
-            $stats[$dateString] = $this->createStatsObject($statData);
+            $stats[$statData['date']] = $this->createStatsObject($statData);
 
             if (null !== $limit && count($stats) >= $limit) {
                 break;
@@ -67,16 +52,45 @@ class StatsHelper
         return null;
     }
 
-    public function count(): int
+    public function count(array $criteria = []): int
     {
-        return count($this->fetchStatsData());
+        return count($this->fetchStatsData($criteria));
     }
 
-    private function fetchStatsData(): array
+    private function fetchStatsData(array $criteria = []): array
     {
         $statsData = json_decode(file_get_contents(__DIR__ . '/fake_stats.json'), true);
 
-        return $statsData['stats'];
+        $fromDate = $criteria['from'] ?? null;
+        $toDate = $criteria['to'] ?? null;
+
+        $stats = [];
+        foreach ($statsData['stats'] as $statData) {
+            $dateString = $statData['date'];
+            $date = new \DateTimeImmutable($dateString);
+
+            if ($fromDate && $date < $fromDate) {
+                continue;
+            }
+
+            if ($toDate && $date > $toDate) {
+                continue;
+            }
+
+            $date = new \DateTimeImmutable($dateString);
+
+            if ($fromDate && $date < $fromDate) {
+                continue;
+            }
+
+            if ($toDate && $date > $toDate) {
+                continue;
+            }
+
+            $stats[] = $statData;
+        }
+
+        return $stats;
     }
 
     private function getRandomItems(array $items, int $max)

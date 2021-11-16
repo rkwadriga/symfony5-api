@@ -6,6 +6,7 @@
 
 namespace App\DataProvider;
 
+use DateTimeInterface;
 use App\Service\StatsHelper;
 use IteratorAggregate;
 use ArrayIterator;
@@ -18,7 +19,8 @@ class DailyStatsPaginator implements PaginatorInterface, IteratorAggregate
     public function __construct(
         private StatsHelper $statsHelper,
         private int $currentPage,
-        private int $maxResults
+        private int $maxResults,
+        private ?DateTimeInterface $fromDate = null,
     ) {}
 
     public function getLastPage(): float
@@ -28,7 +30,7 @@ class DailyStatsPaginator implements PaginatorInterface, IteratorAggregate
 
     public function getTotalItems(): float
     {
-        return $this->statsHelper->count();
+        return $this->statsHelper->count($this->getCriteria());
     }
 
     public function getCurrentPage(): float
@@ -39,6 +41,13 @@ class DailyStatsPaginator implements PaginatorInterface, IteratorAggregate
     public function getItemsPerPage(): float
     {
         return  $this->maxResults;
+    }
+
+    public function setFromDate(DateTimeInterface $fromDate): self
+    {
+        $this->fromDate = $fromDate;
+
+        return $this;
     }
 
     public function count(): float
@@ -55,7 +64,17 @@ class DailyStatsPaginator implements PaginatorInterface, IteratorAggregate
         $offset = ($this->getCurrentPage() - 1) * $this->getItemsPerPage();
 
         return $this->dailyStatsIterator = new ArrayIterator(
-            $this->statsHelper->fetchMany((int)$this->getItemsPerPage(), (int)$offset)
+            $this->statsHelper->fetchMany((int)$this->getItemsPerPage(), (int)$offset, $this->getCriteria())
         );
+    }
+
+    private function getCriteria(): array
+    {
+        $criteria = [];
+        if ($this->fromDate !== null) {
+            $criteria['from'] = $this->fromDate;
+        }
+
+        return $criteria;
     }
 }

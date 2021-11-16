@@ -24,7 +24,7 @@ class DailyStatsDataProvider implements CollectionDataProviderInterface, ItemDat
     {
         [$page, $offset, $limit] = $this->pagination->getPagination($resourceClass, $operationName);
 
-        return new DailyStatsPaginator($this->statsHelper, $page, $limit);
+        return new DailyStatsPaginator($this->statsHelper, $page, $limit, new \DateTime('2021-10-20'));
     }
 
     public function getItem(string $resourceClass, $id, string $operationName = null, array $context = [])
