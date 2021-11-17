@@ -6,7 +6,14 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
 class CheeseListingOutput
 {
-    public string $title;
+    public function __construct(
+        /**
+         * @Groups({"cheese:read"})
+         */
+        public ?string $title = null
+    ) {}
 }
