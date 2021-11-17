@@ -22,7 +22,10 @@ class CheeseListingOutputDataTransformer implements DataTransformerInterface
     public function transform($cheeseListing, string $to, array $context = [])
     {
         return new CheeseListingOutput(
-            $cheeseListing->getTitle()
+            $cheeseListing->getTitle(),
+            $cheeseListing->getDescription(),
+            $cheeseListing->getPrice(),
+            $cheeseListing->getCreatedAt()
         );
     }
 
