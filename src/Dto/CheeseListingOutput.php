@@ -6,6 +6,7 @@
 
 namespace App\Dto;
 
+use App\Entity\User;
 use DateTimeInterface;
 use Carbon\Carbon;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -13,6 +14,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class CheeseListingOutput
 {
     public function __construct(
+        #[Groups(["cheese:read"])]
+        public int $id,
+
         #[Groups(["cheese:read"])]
         public ?string $title = null,
 
@@ -22,7 +26,10 @@ class CheeseListingOutput
         #[Groups(["cheese:read"])]
         public ?int $price = null,
 
-        public ?DateTimeInterface $createdAt = null
+        public ?DateTimeInterface $createdAt = null,
+
+        #[Groups(["cheese:read"])]
+        public ?User $owner = null
     ) {}
 
     #[Groups(["cheese:read"])]
