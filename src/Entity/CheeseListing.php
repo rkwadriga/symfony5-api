@@ -8,6 +8,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Dto\CheeseListingOutput;
 use App\Repository\CheeseListingRepository;
 use App\Validator\IsValidOwner;
 use Carbon\Carbon;
@@ -56,6 +57,7 @@ use App\ApiPlatform\CheeseSearchFilter;
                 "csv" => ["text/csv"]
             ]
         ],
+        output: CheeseListingOutput::class,
         /*denormalizationContext: [
             "groups" => [
                 "cheese:write"
