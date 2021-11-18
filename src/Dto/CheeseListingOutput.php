@@ -6,6 +6,7 @@
 
 namespace App\Dto;
 
+use App\Entity\CheeseListing;
 use App\Entity\User;
 use DateTimeInterface;
 use Carbon\Carbon;
@@ -20,16 +21,18 @@ class CheeseListingOutput
         #[Groups(["cheese:read", "user:read"])]
         public ?string $title = null,
 
-        #[Groups(["cheese:read"])]
-        public ?string $description = null,
-
         #[Groups(["cheese:read", "user:read"])]
         public ?int $price = null,
 
-        public ?DateTimeInterface $createdAt = null,
+        #[Groups(["cheese:read"])]
+        public ?User $owner = null,
+
+        public ?bool $isPublished = null,
 
         #[Groups(["cheese:read"])]
-        public ?User $owner = null
+        public ?string $description = null,
+
+        public ?DateTimeInterface $createdAt = null
     ) {}
 
     #[Groups(["cheese:read"])]
@@ -51,5 +54,17 @@ class CheeseListingOutput
             return null;
         }
         return Carbon::instance($this->createdAt)->diffForHumans();
+    }
+
+    public static function createFromEntity(CheeseListing $cheeseListing): self
+    {
+        return new static(
+            $cheeseListing->getId(),
+            $cheeseListing->getTitle(),
+            $cheeseListing->getPrice(),
+            $cheeseListing->getOwner(),
+            $cheeseListing->getIsPublished(),
+            $cheeseListing->getDescription()
+        );
     }
 }

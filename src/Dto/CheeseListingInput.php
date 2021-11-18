@@ -6,7 +6,10 @@
 
 namespace App\Dto;
 
+use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
+use App\Entity\CheeseListing;
 use App\Entity\User;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 
@@ -37,5 +40,46 @@ class CheeseListingInput
         $this->description = nl2br($description);
 
         return $this;
+    }
+
+    #[Pure]
+    public static function createFromEntity(?CheeseListing $cheeseListing): self
+    {
+        if (!$cheeseListing instanceof CheeseListing) {
+            return new static();
+        }
+
+        return new static(
+            $cheeseListing->getTitle(),
+            $cheeseListing->getPrice(),
+            $cheeseListing->getOwner(),
+            $cheeseListing->getIsPublished(),
+            $cheeseListing->getDescription()
+        );
+    }
+
+    public function createOrUpdateEntity(?CheeseListing $cheeseListing): CheeseListing
+    {
+        if ($cheeseListing === null) {
+            $cheeseListing = new CheeseListing();
+        }
+
+        if ($this->title !== null) {
+            $cheeseListing->setTitle($this->title);
+        }
+        if ($this->price !== null) {
+            $cheeseListing->setPrice($this->price);
+        }
+        if ($this->description !== null) {
+            $cheeseListing->setDescription($this->description);
+        }
+        if ($this->isPublished !== null) {
+            $cheeseListing->setIsPublished($this->isPublished);
+        }
+        if ($this->owner !== null) {
+            $cheeseListing->setOwner($this->owner);
+        }
+
+        return $cheeseListing;
     }
 }

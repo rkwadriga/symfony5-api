@@ -21,14 +21,7 @@ class CheeseListingOutputDataTransformer implements DataTransformerInterface
      */
     public function transform($cheeseListing, string $to, array $context = [])
     {
-        return new CheeseListingOutput(
-            $cheeseListing->getId(),
-            $cheeseListing->getTitle(),
-            $cheeseListing->getDescription(),
-            $cheeseListing->getPrice(),
-            $cheeseListing->getCreatedAt(),
-            $cheeseListing->getOwner()
-        );
+        return CheeseListingOutput::createFromEntity($cheeseListing);
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool

@@ -22,28 +22,7 @@ class CheeseListingInputDataTransformerInitializer implements DataTransformerIni
      */
     public function transform($input, string $to, array $context = [])
     {
-        $objectIndex = AbstractItemNormalizer::OBJECT_TO_POPULATE;
-        $cheeseListing = ($context[$objectIndex] ?? null) instanceof CheeseListing
-            ? $context[$objectIndex]
-            : new CheeseListing();
-
-        if ($input->title !== null) {
-            $cheeseListing->setTitle($input->title);
-        }
-        if ($input->price !== null) {
-            $cheeseListing->setPrice($input->price);
-        }
-        if ($input->description !== null) {
-            $cheeseListing->setDescription($input->description);
-        }
-        if ($input->isPublished !== null) {
-            $cheeseListing->setIsPublished($input->isPublished);
-        }
-        if ($input->owner !== null) {
-            $cheeseListing->setOwner($input->owner);
-        }
-
-        return $cheeseListing;
+        return $input->createOrUpdateEntity($context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? null);
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool
@@ -57,19 +36,6 @@ class CheeseListingInputDataTransformerInitializer implements DataTransformerIni
 
     public function initialize(string $inputClass, array $context = [])
     {
-        $existingCheese = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? null;
-        if (!$existingCheese instanceof CheeseListing) {
-            return new CheeseListingInput();
-        }
-
-        return new CheeseListingInput(
-            $existingCheese->getTitle(),
-            $existingCheese->getPrice(),
-            $existingCheese->getOwner(),
-            $existingCheese->getIsPublished(),
-            $existingCheese->getDescription()
-        );
+        return CheeseListingInput::createFromEntity($context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? null);
     }
-
-
 }
