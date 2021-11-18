@@ -9,6 +9,7 @@ namespace App\DataTransformer;
 use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
 use App\Dto\CheeseListingInput;
 use App\Entity\CheeseListing;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class CheeseListingInputDataTransformer implements DataTransformerInterface
 {
@@ -21,7 +22,14 @@ class CheeseListingInputDataTransformer implements DataTransformerInterface
      */
     public function transform($input, string $to, array $context = [])
     {
-        $cheeseListing = new CheeseListing($input->title);
+        $objectIndex = AbstractNormalizer::OBJECT_TO_POPULATE;
+        $cheeseListing = ($context[$objectIndex] ?? null) instanceof CheeseListing
+            ? $context[$objectIndex]
+            : new CheeseListing();
+
+        if ($input->title !== null) {
+            $cheeseListing->setTitle($input->title);
+        }
         if ($input->price !== null) {
             $cheeseListing->setPrice($input->price);
         }

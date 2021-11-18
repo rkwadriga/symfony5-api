@@ -113,7 +113,7 @@ class CheeseListing
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
      */
-    private ?string $description = null;
+    private string $description;
 
     /**
      * The price of this delicious cheese, in cents
@@ -122,7 +122,7 @@ class CheeseListing
      * //Groups({"cheese:write", "user:write"})
      * @Assert\NotBlank()
      */
-    private ?int $price = null;
+    private int $price;
 
     /**
      * @ORM\Column(type="datetime")
@@ -169,7 +169,7 @@ class CheeseListing
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -181,7 +181,7 @@ class CheeseListing
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPrice(): int
     {
         return $this->price;
     }

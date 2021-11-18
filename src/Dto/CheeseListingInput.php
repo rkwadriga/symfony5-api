@@ -23,7 +23,7 @@ class CheeseListingInput
         public ?User $owner = null,
 
         #[Groups(["cheese:write"])]
-        public bool $isPublished = false,
+        public ?bool $isPublished = null,
 
         public ?string $description = null
     ) {}
