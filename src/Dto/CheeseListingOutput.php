@@ -17,13 +17,13 @@ class CheeseListingOutput
         #[Groups(["cheese:read"])]
         public int $id,
 
-        #[Groups(["cheese:read"])]
+        #[Groups(["cheese:read", "user:read"])]
         public ?string $title = null,
 
         #[Groups(["cheese:read"])]
         public ?string $description = null,
 
-        #[Groups(["cheese:read"])]
+        #[Groups(["cheese:read", "user:read"])]
         public ?int $price = null,
 
         public ?DateTimeInterface $createdAt = null,

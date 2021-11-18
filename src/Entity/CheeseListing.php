@@ -99,7 +99,7 @@ class CheeseListing
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"cheese:read", "cheese:write", "user:read", "user:write"})
+     * @Groups({"cheese:write", "user:write"})
      * @Assert\NotBlank()
      * @Assert\Length(
      *     min=2,
@@ -111,7 +111,6 @@ class CheeseListing
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"cheese:read"})
      * @Assert\NotBlank()
      */
     private string $description;
@@ -120,7 +119,7 @@ class CheeseListing
      * The price of this delicious cheese, in cents
      *
      * @ORM\Column(type="integer")
-     * @Groups({"cheese:read", "cheese:write", "user:read", "user:write"})
+     * @Groups({"cheese:write", "user:write"})
      * @Assert\NotBlank()
      */
     private int $price;
@@ -143,7 +142,7 @@ class CheeseListing
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)
      * //Groups({"cheese:read", "cheese:write"})
-     * @Groups({"cheese:read", "cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
+     * @Groups({"cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
      */
     private ?User $owner = null;
 
@@ -188,17 +187,6 @@ class CheeseListing
         return $this;
     }
 
-    /**
-     * @Groups({"cheese:read"})
-     */
-    public function getShortDescription(): ?string
-    {
-        if (strlen($this->getDescription()) < 40) {
-            return $this->getDescription();
-        }
-        return mb_substr($this->getDescription(), 0, 40) . '...';
-    }
-
     public function getPrice(): int
     {
         return $this->price;
@@ -214,16 +202,6 @@ class CheeseListing
     public function getCreatedAt(): DateTimeInterface
     {
         return $this->createdAt;
-    }
-
-    /**
-     * How long ago in text that this cheese listing was added.
-     *
-     * @Groups({"cheese:read"})
-     */
-    public function getCreatedAtAgo(): string
-    {
-        return Carbon::instance($this->getCreatedAt())->diffForHumans();
     }
 
     public function getIsPublished(): bool
