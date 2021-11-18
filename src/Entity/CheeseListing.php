@@ -8,14 +8,13 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Dto\CheeseListingInput;
 use App\Dto\CheeseListingOutput;
 use App\Repository\CheeseListingRepository;
 use App\Validator\IsValidOwner;
-use Carbon\Carbon;
 use Doctrine\ORM\Mapping as ORM;
 use \DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\ValidIsPublished;
 use App\ApiPlatform\CheeseSearchFilter;
@@ -57,7 +56,8 @@ use App\ApiPlatform\CheeseSearchFilter;
                 "csv" => ["text/csv"]
             ]
         ],
-        output: CheeseListingOutput::class,
+        input: CheeseListingInput::class,
+        output: CheeseListingOutput::class
         /*denormalizationContext: [
             "groups" => [
                 "cheese:write"
@@ -99,7 +99,7 @@ class CheeseListing
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"cheese:write", "user:write"})
+     * //Groups({"cheese:write", "user:write"}) // Look at the App\Dto\CheeseListingInput class
      * @Assert\NotBlank()
      * @Assert\Length(
      *     min=2,
@@ -119,7 +119,7 @@ class CheeseListing
      * The price of this delicious cheese, in cents
      *
      * @ORM\Column(type="integer")
-     * @Groups({"cheese:write", "user:write"})
+     * //Groups({"cheese:write", "user:write"})
      * @Assert\NotBlank()
      */
     private int $price;
@@ -131,7 +131,7 @@ class CheeseListing
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"cheese:write"})
+     * //Groups({"cheese:write"})
      */
     private bool $isPublished = false;
 
@@ -142,7 +142,7 @@ class CheeseListing
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)
      * //Groups({"cheese:read", "cheese:write"})
-     * @Groups({"cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
+     * //Groups({"cheese:collection:post"}) // See the dynamic added groups in App\ApiPlatform\AutoGroupResourceMetadataFactory.getDefaultGroups()
      */
     private ?User $owner = null;
 
@@ -170,19 +170,6 @@ class CheeseListing
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * The description of the cheese as raw text
-     *
-     * @Groups({"cheese:write", "user:write"})
-     * @SerializedName("description")
-     */
-    public function setTextDescription(string $description): self
-    {
-        $this->description = nl2br($description);
 
         return $this;
     }
