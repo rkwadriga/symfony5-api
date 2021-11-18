@@ -14,16 +14,16 @@ class CheeseListingInput
 {
     public function __construct(
         #[Groups(["cheese:write", "user:write"])]
-        public string $title,
+        public ?string $title = null,
 
         #[Groups(["cheese:write", "user:write"])]
-        public int $price,
+        public ?int $price = null,
 
         #[Groups(["cheese:collection:post"])]
-        public User $owner,
+        public ?User $owner = null,
 
         #[Groups(["cheese:write"])]
-        public bool $isPublished = true,
+        public bool $isPublished = false,
 
         public ?string $description = null
     ) {}

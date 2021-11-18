@@ -13,19 +13,37 @@ use App\Entity\CheeseListing;
 class CheeseListingInputDataTransformer implements DataTransformerInterface
 {
     /**
-     * @param CheeseListingInput $cheeseListingInput
+     * @param CheeseListingInput $input
      * @param string $to
      * @param array $context
      *
      * @return CheeseListing
      */
-    public function transform($cheeseListingInput, string $to, array $context = [])
+    public function transform($input, string $to, array $context = [])
     {
-        return new CheeseListing();
+        $cheeseListing = new CheeseListing($input->title);
+        if ($input->price !== null) {
+            $cheeseListing->setPrice($input->price);
+        }
+        if ($input->description !== null) {
+            $cheeseListing->setDescription($input->description);
+        }
+        if ($input->isPublished !== null) {
+            $cheeseListing->setIsPublished($input->isPublished);
+        }
+        if ($input->owner !== null) {
+            $cheeseListing->setOwner($input->owner);
+        }
+
+        return $cheeseListing;
     }
 
     public function supportsTransformation($data, string $to, array $context = []): bool
     {
-        return $to === CheeseListing::class;
+        if ($data instanceof CheeseListing) {
+            // Already transformed
+            return false;
+        }
+        return $to === CheeseListing::class && ($context['input']['class'] ?? null) === CheeseListingInput::class;
     }
 }
