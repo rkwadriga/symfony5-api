@@ -6,12 +6,12 @@
 
 namespace App\DataTransformer;
 
-use ApiPlatform\Core\DataTransformer\DataTransformerInterface;
+use ApiPlatform\Core\DataTransformer\DataTransformerInitializerInterface;
+use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Dto\CheeseListingInput;
 use App\Entity\CheeseListing;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class CheeseListingInputDataTransformer implements DataTransformerInterface
+class CheeseListingInputDataTransformerInitializer implements DataTransformerInitializerInterface
 {
     /**
      * @param CheeseListingInput $input
@@ -22,7 +22,7 @@ class CheeseListingInputDataTransformer implements DataTransformerInterface
      */
     public function transform($input, string $to, array $context = [])
     {
-        $objectIndex = AbstractNormalizer::OBJECT_TO_POPULATE;
+        $objectIndex = AbstractItemNormalizer::OBJECT_TO_POPULATE;
         $cheeseListing = ($context[$objectIndex] ?? null) instanceof CheeseListing
             ? $context[$objectIndex]
             : new CheeseListing();
@@ -54,4 +54,22 @@ class CheeseListingInputDataTransformer implements DataTransformerInterface
         }
         return $to === CheeseListing::class && ($context['input']['class'] ?? null) === CheeseListingInput::class;
     }
+
+    public function initialize(string $inputClass, array $context = [])
+    {
+        $existingCheese = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? null;
+        if (!$existingCheese instanceof CheeseListing) {
+            return new CheeseListingInput();
+        }
+
+        return new CheeseListingInput(
+            $existingCheese->getTitle(),
+            $existingCheese->getPrice(),
+            $existingCheese->getOwner(),
+            $existingCheese->getIsPublished(),
+            $existingCheese->getDescription()
+        );
+    }
+
+
 }
