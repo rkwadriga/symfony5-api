@@ -91,9 +91,9 @@ class UserResourceTest extends CustomApiTestCase
         $this->getClient();
 
         // 1. Create 2 users and admin
-        $user1 = UserFactory::new()->withPhoneNumber()->create(['username' => 'cheesehead']);
-        $user2 = UserFactory::new()->create();
-        $admin = UserFactory::new()->admin()->create();
+        $user1 = UserFactory::new()->withPhoneNumber()->create(['username' => 'cheesehead'])->disableAutoRefresh();
+        $user2 = UserFactory::new()->create()->disableAutoRefresh();
+        $admin = UserFactory::new()->admin()->create()->disableAutoRefresh();
 
         // 2. Login the second user and check "GET /api/users/<id>" method
         // ... the response should has be successful, has a "username" param and doesn't have a "phoneNumber" param

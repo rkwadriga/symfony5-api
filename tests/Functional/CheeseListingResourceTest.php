@@ -209,7 +209,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->getClient();
 
         // 1. Create a user
-        $user = UserFactory::new()->create();
+        $user = UserFactory::new()->create()->disableAutoRefresh();
 
         // 2. Create a new cheese listing and set just created user as it's owner
         $cheeseListing = CheeseListingFactory::new()
@@ -244,8 +244,8 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->getClient();
 
         // 1. Create user and admin
-        $user = UserFactory::new()->create();
-        $admin = UserFactory::new()->create(['roles' => [SecurityHelper::ROLE_ADMIN]]);
+        $user = UserFactory::new()->create()->disableAutoRefresh();
+        $admin = UserFactory::new()->create(['roles' => [SecurityHelper::ROLE_ADMIN]])->disableAutoRefresh();
 
         // 2. Create a cheese with a short description
         // ... acn check is user and admin can publish this cheese
