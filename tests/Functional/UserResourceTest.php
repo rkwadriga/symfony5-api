@@ -12,6 +12,7 @@ use App\Security\SecurityHelper;
 use App\ApiPlatform\Routes;
 use App\Test\CustomApiTestCase;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserResourceTest extends CustomApiTestCase
@@ -58,6 +59,21 @@ class UserResourceTest extends CustomApiTestCase
 
         // 6. Test users login
         $this->login('cheeseplease@example.com', 'qwerty');
+    }
+
+    public function testCreateUserWithUuid()
+    {
+        // 1. Create a new user with specific uuid adn check that response code is equals to 201
+        //   adn response contains uuid in "@id" param
+        $uuid = Uuid::uuid4();
+        $this->ldRequest(Routes::URL_CREATE_USER, [
+            'uuid' => $uuid,
+            'email' => 'cheeseplease@example.com',
+            'username' => 'cheeseplease',
+            'password' => 'qwerty',
+        ]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        $this->assertJsonContains(['@id' => $this->getRequestUri([Routes::URL_GET_USER, ['uuid' => $uuid]])]);
     }
 
     public function testUpdateUser()

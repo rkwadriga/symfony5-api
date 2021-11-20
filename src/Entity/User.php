@@ -12,6 +12,7 @@ use App\Doctrine\UserSetIsMvpListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -57,7 +58,7 @@ use App\Doctrine\UserGenerateUuidListener;
 ]
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\EntityListeners({UserSetIsMvpListener::class, UserGenerateUuidListener::class})
+ * @ORM\EntityListeners({UserSetIsMvpListener::class})
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -72,8 +73,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="uuid", unique=true)
      * @ApiProperty(identifier=true)
+     * @Groups({"user:write"})
      */
-    private ?UuidInterface $uuid = null;
+    private UuidInterface $uuid;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -140,9 +142,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private bool $isMvp = false;
 
-    public function __construct()
+    public function __construct(?UuidInterface $uuid = null)
     {
         $this->cheeseListings = new ArrayCollection();
+        $this->uuid = $uuid ?: Uuid::uuid4();
     }
 
     public function getId(): ?int
@@ -150,16 +153,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getUuid(): ?UuidInterface
+    public function getUuid(): UuidInterface
     {
         return $this->uuid;
-    }
-
-    public function setUuid(UuidInterface $uuid): self
-    {
-        $this->uuid = $uuid;
-
-        return $this;
     }
 
     public function getEmail(): string
