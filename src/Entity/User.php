@@ -12,14 +12,14 @@ use App\Doctrine\UserSetIsMvpListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\String\LazyString;
+use App\Doctrine\UserGenerateUuidListener;
 
 #[
     ApiResource(
@@ -57,7 +57,7 @@ use Symfony\Component\String\LazyString;
 ]
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\EntityListeners({UserSetIsMvpListener::class})
+ * @ORM\EntityListeners({UserSetIsMvpListener::class, UserGenerateUuidListener::class})
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -65,13 +65,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @ApiProperty(identifier=false)
      */
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="uuid", unique=true)
+     * @ApiProperty(identifier=true)
      */
-    private string $uuid;
+    private ?UuidInterface $uuid = null;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -141,7 +143,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->cheeseListings = new ArrayCollection();
-        $this->uuid = Uuid::uuid4();
     }
 
     public function getId(): ?int
@@ -149,12 +150,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getUuid(): string
+    public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
     }
 
-    public function setUuid(string $uuid): self
+    public function setUuid(UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
 

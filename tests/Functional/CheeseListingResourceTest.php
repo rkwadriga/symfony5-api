@@ -61,12 +61,12 @@ class CheeseListingResourceTest extends CustomApiTestCase
 
         // 6. Check if user can not create a cheese with the owner not himself
         $cheeseData['title'] = 'New mystery cheese';
-        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['id' => $otherUser->getId()]);
+        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['uuid' => $otherUser->getUuid()]);
         $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData + ['owner' => $ownerUri]);
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY, 'not passing the correct owner');
 
         // 7. Check if user can create a cheese with the owner himself
-        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['id' => $authenticatedUser->getId()]);
+        $ownerUri = $this->getRouter()->generate(Routes::URL_GET_USER, ['uuid' => $authenticatedUser->getUuid()]);
         $this->request(Routes::URL_CREATE_CHEESE_LISTING, $cheeseData + ['owner' => $ownerUri]);
         $this->assertResponseIsSuccessful();
     }
@@ -193,8 +193,8 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->assertResponseIsSuccessful();
 
         // 5. Get user's info and check that user has only one cheese in it's "cheeseListings" param
-        $getUserRequestString = $this->getRequestAsString([Routes::URL_GET_USER, $user->getId()]);
-        $this->request([Routes::URL_GET_USER, $user->getId()]);
+        $getUserRequestString = $this->getRequestAsString([Routes::URL_GET_USER, ['uuid' => $user->getUuid()]]);
+        $this->request([Routes::URL_GET_USER, ['uuid' => $user->getUuid()]]);
         $cheeseListings = $this->getResponseParams('cheeseListings');
         $this->assertIsArray($cheeseListings, sprintf('The response of "%s" request does not contain the "cheeseListings" param (array): %s',
             $getUserRequestString,
@@ -209,7 +209,7 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->getClient();
 
         // 1. Create a user
-        $user = UserFactory::new()->create()->disableAutoRefresh();
+        $user = UserFactory::new()->create();
 
         // 2. Create a new cheese listing and set just created user as it's owner
         $cheeseListing = CheeseListingFactory::new()
@@ -244,8 +244,8 @@ class CheeseListingResourceTest extends CustomApiTestCase
         $this->getClient();
 
         // 1. Create user and admin
-        $user = UserFactory::new()->create()->disableAutoRefresh();
-        $admin = UserFactory::new()->create(['roles' => [SecurityHelper::ROLE_ADMIN]])->disableAutoRefresh();
+        $user = UserFactory::new()->create();
+        $admin = UserFactory::new()->create(['roles' => [SecurityHelper::ROLE_ADMIN]]);
 
         // 2. Create a cheese with a short description
         // ... acn check is user and admin can publish this cheese
