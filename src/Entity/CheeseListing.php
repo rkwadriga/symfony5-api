@@ -11,11 +11,9 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Dto\CheeseListingInput;
 use App\Dto\CheeseListingOutput;
 use App\Repository\CheeseListingRepository;
-use App\Validator\IsValidOwner;
 use Doctrine\ORM\Mapping as ORM;
 use \DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator\ValidIsPublished;
 use App\ApiPlatform\CheeseSearchFilter;
 
@@ -100,18 +98,18 @@ class CheeseListing
     /**
      * @ORM\Column(type="string", length=255)
      * //Groups({"cheese:write", "user:write"}) // Look at the App\Dto\CheeseListingInput class
-     * @Assert\NotBlank()
-     * @Assert\Length(
-     *     min=2,
-     *     max=50,
-     *     maxMessage="Describe your cheese in 50 chars or less"
-     * )
+     * //Assert\NotBlank()
+     * //Assert\Length(
+     * //    min=2,
+     * //    max=50,
+     * //    maxMessage="Describe your cheese in 50 chars or less"
+     * //)
      */
     private ?string $title;
 
     /**
      * @ORM\Column(type="text")
-     * @Assert\NotBlank()
+     * //Assert\NotBlank()
      */
     private string $description;
 
@@ -120,7 +118,7 @@ class CheeseListing
      *
      * @ORM\Column(type="integer")
      * //Groups({"cheese:write", "user:write"})
-     * @Assert\NotBlank()
+     * //Assert\NotBlank()
      */
     private int $price;
 
@@ -137,7 +135,7 @@ class CheeseListing
 
     /**
      * //Assert\Valid()
-     * @IsValidOwner()
+     * //IsValidOwner()
      * //Assert\NotBlank()
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="cheeseListings")
      * @ORM\JoinColumn(nullable=false)

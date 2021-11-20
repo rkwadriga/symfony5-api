@@ -8,11 +8,16 @@ namespace App\DataTransformer;
 
 use ApiPlatform\Core\DataTransformer\DataTransformerInitializerInterface;
 use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
+use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Dto\CheeseListingInput;
 use App\Entity\CheeseListing;
 
 class CheeseListingInputDataTransformerInitializer implements DataTransformerInitializerInterface
 {
+    public function __construct(
+        private ValidatorInterface $validator
+    ) {}
+
     /**
      * @param CheeseListingInput $input
      * @param string $to
@@ -22,6 +27,8 @@ class CheeseListingInputDataTransformerInitializer implements DataTransformerIni
      */
     public function transform($input, string $to, array $context = [])
     {
+        $this->validator->validate($input);
+
         return $input->createOrUpdateEntity($context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? null);
     }
 

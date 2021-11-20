@@ -6,28 +6,49 @@
 
 namespace App\Dto;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use App\Entity\CheeseListing;
 use App\Entity\User;
 use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use App\Validator\IsValidOwner;
 
 class CheeseListingInput
 {
     public function __construct(
-        #[Groups(["cheese:write", "user:write"])]
+        #[
+            Groups(["cheese:write", "user:write"]),
+            Assert\NotBlank(),
+            Assert\Length([
+                'min' => 5,
+                'max' => 50,
+                'minMessage' => 'Describe your cheese in 5 chars or more',
+                'maxMessage' => 'Describe your cheese in 50 chars or less'
+            ])
+        ]
         public ?string $title = null,
 
-        #[Groups(["cheese:write", "user:write"])]
+        #[
+            Groups(["cheese:write", "user:write"]),
+            Assert\NotBlank()
+        ]
         public ?int $price = null,
 
-        #[Groups(["cheese:collection:post"])]
+        #[
+            Groups(["cheese:collection:post"]),
+            IsValidOwner()
+        ]
         public ?User $owner = null,
 
-        #[Groups(["cheese:write"])]
+        #[
+            Groups(["cheese:write"])
+        ]
         public ?bool $isPublished = null,
 
+        #[
+            Assert\NotBlank()
+        ]
         public ?string $description = null
     ) {}
 

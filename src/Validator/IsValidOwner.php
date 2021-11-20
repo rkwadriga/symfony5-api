@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraint;
 /**
  * @Annotation
  */
-class IsValidOwner extends Constraint
+#[\Attribute] class IsValidOwner extends Constraint
 {
     /*
      * Any public properties become valid options for the annotation.
