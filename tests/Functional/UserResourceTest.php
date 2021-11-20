@@ -67,7 +67,7 @@ class UserResourceTest extends CustomApiTestCase
         //   adn response contains uuid in "@id" param
         $uuid = Uuid::uuid4();
         $this->ldRequest(Routes::URL_CREATE_USER, [
-            'uuid' => $uuid,
+            'id' => $uuid,
             'email' => 'cheeseplease@example.com',
             'username' => 'cheeseplease',
             'password' => 'qwerty',

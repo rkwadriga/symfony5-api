@@ -74,6 +74,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="uuid", unique=true)
      * @ApiProperty(identifier=true)
      * @Groups({"user:write"})
+     * @SerializedName("id")
      */
     private UuidInterface $uuid;
 
